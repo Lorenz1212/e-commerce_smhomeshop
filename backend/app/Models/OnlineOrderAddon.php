@@ -11,7 +11,13 @@ class OnlineOrderAddon extends BaseModel
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'order_item_id', 'addon_id', 'unit_price', 'subtotal', 'product_id'
+        'order_id', 
+        'order_item_id', 
+        'product_id',
+        'addon_id', 
+        'unit_price', 
+        'subtotal', 
+        'is_freebie'
     ];
 
     public function idEncrypted() : Attribute

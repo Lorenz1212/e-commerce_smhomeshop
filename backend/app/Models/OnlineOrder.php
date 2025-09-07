@@ -14,21 +14,22 @@ class OnlineOrder extends BaseModel
 
     protected $fillable = [
         'order_no', 
-        'queue_number', 
         'customer_id', 
         'store_id', 
         'order_date',
-        'scheduled_time',
         'status',
         'payment_status',
         'payment_method',
-        'total_amount',
         'subtotal',
         'tax_amount',
         'discount_amount',
-        'delivery_address',
-        'special_instructions',
-        'request_type',
+        'shipping_fee',
+        'total_amount',
+        'shipping_address',
+        'billing_address',
+        'tracking_number',
+        'courier_name',
+        'notes',
     ];
 
     protected $hidden = [
@@ -63,28 +64,28 @@ class OnlineOrder extends BaseModel
         });
 
         static::updated(function ($order) {
-            if ($order->isDirty('status')) {
-                if($order->status === c('ORDER_PAID')){
-                    $exists = QueueOrder::where('queue_no', $order->queue_number)->exists();
+            // if ($order->isDirty('status')) {
+            //     if($order->status === c('ORDER_PAID')){
+            //         $exists = QueueOrder::where('queue_no', $order->queue_number)->exists();
 
-                    if (!$exists) {
+            //         if (!$exists) {
 
-                        $queueNo = self::generateQueueNumber();
-                        $order->queue_number = $queueNo;
-                        $order->saveQuietly(); 
+            //             $queueNo = self::generateQueueNumber();
+            //             $order->queue_number = $queueNo;
+            //             $order->saveQuietly(); 
 
-                        QueueOrder::create([
-                            'queue_no' => $queueNo,
-                            'order_status' => c('QUEUE_ONLINE'),
-                        ]);
+            //             QueueOrder::create([
+            //                 'queue_no' => $queueNo,
+            //                 'order_status' => c('QUEUE_ONLINE'),
+            //             ]);
                         
-                        broadcast(new OrderReady($order));
-                    }
-                }
-                if($order->status === c('ORDER_READY')){
-                    broadcast(new OrderReady($order));
-                }
-            }
+            //             broadcast(new OrderReady($order));
+            //         }
+            //     }
+            //     if($order->status === c('ORDER_READY')){
+            //         broadcast(new OrderReady($order));
+            //     }
+            // }
         });
     }
 

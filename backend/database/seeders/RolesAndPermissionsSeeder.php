@@ -39,7 +39,6 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::firstOrCreate(['name'=>  'delete_product_category','permission_parent_id'=>$category->id,'description'=>'Archive','guard_name'=>'core']);
         // Permission::firstOrCreate(['name' => 'force_delete_product_category','permission_parent_id'=>$category->id,'description'=>'Delete Permanently','guard_name'=>'core']);
 
-
         // Create Product Add-ons 
         $addons = PermissionParent::firstOrCreate(['name' => 'Product Add-ons']);
         Permission::firstOrCreate(['name' => 'view_product_addons_list','permission_parent_id'=>$addons->id,'description'=>'View List','guard_name'=>'core']);
@@ -85,9 +84,9 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'view_online_order_list','permission_parent_id'=>$online_order->id,'description'=>'View List','guard_name'=>'core']);
         Permission::firstOrCreate(['name' => 'view_onlie_order_details','permission_parent_id'=>$online_order->id,'description'=>'View Details','guard_name'=>'core']);
         
-        $walkin_order = PermissionParent::firstOrCreate(['name' => 'Walk-In Order']);
-        Permission::firstOrCreate(['name' => 'view_walkin_order_list','permission_parent_id'=>$walkin_order->id,'description'=>'View List','guard_name'=>'core']);
-        Permission::firstOrCreate(['name' => 'view_walkin_order_details','permission_parent_id'=>$walkin_order->id,'description'=>'View Details','guard_name'=>'core']);
+        // $walkin_order = PermissionParent::firstOrCreate(['name' => 'Walk-In Order']);
+        // Permission::firstOrCreate(['name' => 'view_walkin_order_list','permission_parent_id'=>$walkin_order->id,'description'=>'View List','guard_name'=>'core']);
+        // Permission::firstOrCreate(['name' => 'view_walkin_order_details','permission_parent_id'=>$walkin_order->id,'description'=>'View Details','guard_name'=>'core']);
     
         // Create User Account 
         $user_account = PermissionParent::firstOrCreate(['name' => 'User Accounts']);

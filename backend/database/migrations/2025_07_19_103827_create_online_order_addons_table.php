@@ -15,10 +15,15 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained('online_orders')->onDelete('cascade');
             $table->foreignId('order_item_id')->constrained('online_order_items')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products');
+            $table->foreignId('product_id')->nullable()->constrained('products')->onDelete('set null');
             $table->foreignId('addon_id')->constrained('addons')->onDelete('cascade');
-            $table->decimal('unit_price', 10, 2);
-            $table->decimal('subtotal', 10, 2);
+            
+            $table->string('name');
+            $table->integer('quantity')->default(1);
+            $table->decimal('unit_price', 10, 2)->default(0);
+            $table->decimal('subtotal', 10, 2)->default(0);
+            $table->boolean('is_freebie')->default(false);
+            
             $table->timestamps();
         });
     }

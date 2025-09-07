@@ -1,4 +1,5 @@
 
+import {useEffect} from 'react'
 import {useIntl} from 'react-intl'
 import {AsideMenuItemWithSubMain} from './AsideMenuItemWithSubMain'
 import {AsideMenuItem} from './AsideMenuItem'
@@ -10,7 +11,20 @@ export function AsideMenuMain() {
 
   const {currentUser} = useAuth();
 
-  const permissions = currentUser?.user?.permissions ?? currentUser?.permissions
+  const permissions = currentUser?.permissions
+
+  useEffect(() => {
+    if(typeof permissions == 'undefined'){
+      const timer = setTimeout(() => {
+        window.location.reload()
+      }, 1000) // refresh after 1 second
+      return () => clearTimeout(timer)
+    }
+  }, [permissions])
+  
+  if(typeof permissions == 'undefined'){
+    return null 
+  }
 
   return (
     <>

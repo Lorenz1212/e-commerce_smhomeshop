@@ -11,7 +11,22 @@ class OnlineOrderItem extends BaseModel
     use HasFactory;
 
     protected $fillable = [
-        'order_id', 'product_id', 'quantity', 'unit_price', 'subtotal'
+        'order_id', 
+        'product_id', 
+        'variant_id', 
+        'product_name', 
+        'sku', 
+
+        'quantity', 
+        'unit_price', 
+        'subtotal',
+        'discount_amount',
+        'tax_amount',
+
+        'status',
+        'fulfilled_at',
+        'returned_at',
+        'attributes'
     ];
 
     public function idEncrypted() : Attribute
