@@ -51,6 +51,18 @@ export const AddonsFieldArray: FC<AddonsFieldArrayProps> = ({ name, initialAddon
       name={name}
       render={(arrayHelpers) => (
         <div>
+           <div className="d-flex justify-content-between align-items-center mb-2">
+            <h5>Addons</h5>
+             <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() =>
+                arrayHelpers.push({ id: '', name: '', base_price: '', custom_price: '' })
+              }
+            >
+              Add Addon
+            </button>
+          </div>
           {addons.length > 0 ? (
             addons.map((addon, index) => {
               const touchedArray = Array.isArray(touched[name]) ? touched[name] : []
@@ -158,16 +170,6 @@ export const AddonsFieldArray: FC<AddonsFieldArrayProps> = ({ name, initialAddon
           ) : (
             <div className="mb-3">No addons added yet.</div>
           )}
-
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() =>
-              arrayHelpers.push({ id: '', name: '', base_price: '', custom_price: '' })
-            }
-          >
-            Add Addon
-          </button>
         </div>
       )}
     />

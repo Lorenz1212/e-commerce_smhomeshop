@@ -6,14 +6,15 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
-class Product extends BaseModel
+class ProductVariant extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'sku', 'name', 'description','category_id', 'brand_id', 'quantity_on_hand', 'reorder_point', 'supplier_id', 'cost_price', 'selling_price'
+        'product_id', 'sku', 'variant_name',
+        'quantity_on_hand', 'reorder_point',
+        'cost_price', 'selling_price', 'attributes'
     ];
 
      protected $appends = [
@@ -21,6 +22,11 @@ class Product extends BaseModel
         'row_number',
         'created_at_format',
         'stock_status'
+    ];
+
+    protected $casts = [
+        'attributes' => 'array', // JSON cast to array
+        'is_active' => 'boolean',
     ];
 
     protected function rowNumber(): Attribute
@@ -71,43 +77,13 @@ class Product extends BaseModel
         );
     }
 
-    public function category()
+    public function product()
     {
-        return $this->belongsTo(ProductCategory::class);
-    }
-
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Product::class);
     }
 
     public function images()
     {
-        return $this->hasMany(ProductImage::class);
-    }
-
-    public function addons()
-    {
-        return $this->belongsToMany(Addon::class)->withPivot('custom_price')->withTimestamps();
-    }
-
-    public function product_addons()
-    {
-        return $this->hasMany(ProductAddon::class);
-    }
-
-    public function product_addon()
-    {
-        return $this->belongsTo(ProductAddon::class);
-    }
-
-    public function variants()
-    {
-        return $this->hasMany(ProductVariant::class);
-    }
-
-    public function brand()
-    {
-        return $this->belongsTo(ProductBrand::class);
+        return $this->hasMany(ProductVariantImage::class);
     }
 }

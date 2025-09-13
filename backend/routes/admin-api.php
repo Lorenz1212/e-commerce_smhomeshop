@@ -4,6 +4,7 @@ use App\Http\Controllers\API\Admin\Customer\CustomerController;
 use App\Http\Controllers\API\Admin\Dashboard\DashboardController;
 use App\Http\Controllers\API\Admin\Feedback\FeedbackController;
 use App\Http\Controllers\API\Admin\Product\ProductAddOnsController;
+use App\Http\Controllers\API\Admin\Product\ProductBrandController;
 use App\Http\Controllers\API\Admin\Product\ProductController;
 use App\Http\Controllers\API\Admin\Product\ProductCategoryController;
 use App\Http\Controllers\API\Admin\Reports\InventoryReportController;
@@ -53,6 +54,16 @@ Route::prefix('v1')->group(function () {
             Route::post('/{category_id}/update', [ProductCategoryController::class, 'update']);
             Route::post('/{category_id}/restore', [ProductCategoryController::class, 'restore']);
             Route::delete('/{category_id}/delete', [ProductCategoryController::class, 'delete']);
+        });
+
+         Route::prefix('product_brand')->group(function () {
+            Route::get('/list', [ProductBrandController::class, 'list']);
+            Route::get('/archived/list', [ProductBrandController::class, 'archivedList']);
+            Route::get('/{brand_id}/edit', [ProductBrandController::class, 'showDetails']);
+            Route::post('/store', [ProductBrandController::class, 'store']);
+            Route::post('/{brand_id}/update', [ProductBrandController::class, 'update']);
+            Route::post('/{brand_id}/restore', [ProductBrandController::class, 'restore']);
+            Route::delete('/{brand_id}/delete', [ProductBrandController::class, 'delete']);
         });
 
         Route::prefix('product')->group(function () {

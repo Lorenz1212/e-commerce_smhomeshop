@@ -50,57 +50,55 @@ class UploadImageHelper extends Controller{
         }
     }
 
-    public function processFileUpload($request, $uploadPath, $fileInputName, $targetField, $imageResize = false)
-    {
+   public function processFileUpload($request, $uploadPath, $fileInputName, $targetField, $imageResize = false)
+   {
         $uploadedFiles = $request->file($fileInputName);
 
         if (!$uploadedFiles) {
             return;
         }
 
-        $filenames = [];
+        // ✅ Case 1: Multiple flat uploads (e.g. images[])
+        if (is_array($uploadedFiles) && isset($uploadedFiles[0]) && $uploadedFiles[0] instanceof \Illuminate\Http\UploadedFile) {
+            $filenames = [];
 
-        if (is_array($uploadedFiles)) {
             foreach ($uploadedFiles as $file) {
-                $filename = $imageResize
+                $filenames[] = $imageResize
                     ? $this->uploadImageAndResize($file, $uploadPath)
                     : $this->uploadImage($file, $uploadPath);
-
-                $filenames[] = $filename;
             }
-        } else {
+
+            $request->merge([$targetField => $filenames]);
+            return;
+        }
+
+        // ✅ Case 2: Single file upload (e.g. profile_image or a single variant.image)
+        if ($uploadedFiles instanceof \Illuminate\Http\UploadedFile) {
             $filename = $imageResize
                 ? $this->uploadImageAndResize($uploadedFiles, $uploadPath)
                 : $this->uploadImage($uploadedFiles, $uploadPath);
 
-            $filenames[] = $filename; // Ensure it's always an array
+            $request->merge([$targetField => [$filename]]);
+            return;
         }
 
-        $request->merge([$targetField => $filenames]);
+        // ✅ Case 3: Nested uploads (e.g. variants.*.image)
+        if (is_array($uploadedFiles)) {
+            $variants = $request->input('variants', []);
+
+            foreach ($uploadedFiles as $index => $file) {
+                if ($file instanceof \Illuminate\Http\UploadedFile) {
+                    $filename = $imageResize
+                        ? $this->uploadImageAndResize($file, $uploadPath)
+                        : $this->uploadImage($file, $uploadPath);
+
+                    // Inject filename into the correct variant
+                    $variants[$index][$targetField] = $filename;
+                }
+            }
+
+            $request->merge(['variants' => $variants]);
+        }
     }
 
-
-    // public function processFileUpload($request,$uploadPath,$fileInputName ,$targetField,$modelInstance=false,$id=false,$imageResize=false)
-    // {
-    //     if ($file = $request->file($fileInputName)) {
-    //         if($id){
-    //             $setOldImage = $this->getOldImage($id,$modelInstance,$targetField);
-    //             if(Storage::disk('public')->exists($uploadPath.'/'.$setOldImage)){
-    //                 Storage::disk('public')->delete($uploadPath.'/'.$setOldImage);
-    //             }
-    //         }
-    //         if($imageResize){
-    //             $customFilename = $this->uploadImageAndResize($file,$uploadPath);
-    //         }else{
-    //             $customFilename = $this->uploadImage($file, $uploadPath);
-    //         }
-           
-    //         $request->merge([$targetField => $customFilename]);
-    //     }else{
-    //         if($id){
-    //             $setOldImage = $this->getOldImage($id,$modelInstance,$targetField);
-    //             $request->merge([$targetField => $setOldImage]);
-    //         }
-    //     }
-    // }
 }

@@ -7,9 +7,9 @@ use App\Helpers\DTServerSide;
 use App\Models\InventoryMovement;
 use App\Models\ProductAddon;
 use App\Models\ProductImage;
-use Illuminate\Support\Facades\Log;
+use App\Models\ProductVariant;
+use App\Models\ProductVariantImage;
 use Illuminate\Support\Facades\Storage;
-use PDO;
 
 class ProductService
 {
@@ -52,7 +52,8 @@ class ProductService
     {
         $response = Product::with([
             'images',
-            'product_addons.addon'
+            'product_addons.addon',
+            'variants'
         ])->findOrFail($product_id);
 
         $response->image = $response->images->first()?->image_cover;
@@ -71,6 +72,7 @@ class ProductService
             'sku' => $data['sku'],
             'name' => $data['name'],
             'description' => $data['description'],
+            'brand_id' => $data['brand_id'],
             'category_id' => $data['category_id'],
             'supplier_id' => $data['supplier_id'],
             'quantity_on_hand' => $data['quantity_on_hand'],
@@ -78,7 +80,7 @@ class ProductService
             'cost_price' => $data['cost_price'],
             'selling_price' => $data['selling_price'],
         ]);
-
+        
         InventoryMovement::create([
             'product_id'=>$product->id,
             'supplier_id'=>$data['supplier_id'],
@@ -86,11 +88,41 @@ class ProductService
             'movement_type'=>'IN'
         ]);
 
-        foreach ($data['filename'] ?? [] as $filename) {
+        foreach ($data['filename'] ?? [] as $index => $filename) {
             ProductImage::create([
                 'product_id' => $product->id,
                 'filename' => $filename,
+                'is_primary' => $index === 0 ? 1 : 0, // first image is primary
             ]);
+        }
+
+        if(!empty($data['variants'])){
+            foreach ($data['variants'] as $variant) {
+
+                $newVariant = ProductVariant::create([
+                    'product_id' => $product->id,
+                    'sku' =>  $variant['sku'],
+                    'variant_name' => $variant['variant_name'],
+                    'quantity_on_hand'=> $variant['quantity_on_hand'],
+                    'reorder_point'=> $variant['reorder_point'],
+                    'cost_price'=> $variant['cost_price'],
+                    'selling_price'=> $variant['selling_price'],
+                    'attributes' => $variant['attributes'] ?? null,
+                ]);
+
+                if (!empty($variant['filename'])) {
+                    // If multiple images, loop through them
+                    $filenames = is_array($variant['filename']) ? $variant['filename'] : [$variant['filename']];
+
+                    foreach ($filenames as $index => $filename) {
+                        ProductVariantImage::create([
+                            'variant_id' => $newVariant->id, // ✅ use object id
+                            'filename'   => $filename,
+                            'is_primary' => $index === 0 ? 1 : 0, // first image is primary
+                        ]);
+                    }
+                }
+            }
         }
 
         if (!empty($data['addons'])) {
@@ -147,6 +179,7 @@ class ProductService
             $product->product_addons()->delete();
         }
      
+     
         $quantity_on_hand = $product->quantity_on_hand??0;
 
         if(!empty($data['add_new_stocks'])){
@@ -159,6 +192,7 @@ class ProductService
             'sku' => $data['sku'],
             'name' => $data['name'],
             'description' => $data['description'],
+            'brand_id'    => $data['brand_id'],
             'category_id' => $data['category_id'],
             'supplier_id' => $data['supplier_id'],
             'quantity_on_hand' => $quantity_on_hand_total,

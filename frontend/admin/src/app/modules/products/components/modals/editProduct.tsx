@@ -7,6 +7,7 @@ import { SupplierSelect } from '@@@/selects/SupplierSelect'
 import { useProduct } from '@@/products/core/_request'
 import { ImageUploader } from '@@@/uploader/ImageUploader'
 import { AddonsFieldArray } from '@@@/AddonsFieldArray'
+import { VariantsFieldArray } from '@@@/VariantFieldArray'
 
 interface EditProductModalProps {
   productID: any,
@@ -66,6 +67,17 @@ const EditProductModal: FC<EditProductModalProps> = ({
             ),
         })
     ),
+    variants: Yup.array().of(
+      Yup.object().shape({
+        sku: Yup.string().required('Variant SKU is required'),
+        variant_name: Yup.string().required('Variant name is required'),
+        quantity_on_hand: Yup.number().required().min(0),
+        reorder_point: Yup.number().nullable(),
+        cost_price: Yup.number().nullable(),
+        selling_price: Yup.number().nullable(),
+        image: Yup.mixed().required('Variant image is required'),
+      })
+    ),
 })
 
   return (
@@ -83,9 +95,19 @@ const EditProductModal: FC<EditProductModalProps> = ({
         selling_price: data.selling_price,
         images: [],
         addons: data.product_addons?.map((addon: any) => ({
-          id: addon.addon_id, // id ng addon mismo, hindi yung pivot id
-          base_price: addon.base_price ?? '', // siguraduhin na may default value
+          id: addon.addon_id, 
+          base_price: addon.base_price ?? '', 
           custom_price: addon.custom_price ?? '',
+        })) || [],
+        variants: data.variants?.map((variant: any) => ({
+          id: variant.variant_id, 
+          sku: variant.sku ?? '', 
+          variant_name: variant.variant_name ?? '',
+          quantity_on_hand: variant.quantity_on_hand ?? '',
+          reorder_point: variant.reorder_point ?? '',
+          cost_price: variant.cost_price ?? '',
+          selling_price: variant.selling_price ?? '',
+          image: variant.image ?? '',
         })) || []
       }}
       validationSchema={Schema}
@@ -273,13 +295,12 @@ const EditProductModal: FC<EditProductModalProps> = ({
               </div>
               <div className="col-md-6 mb-4">
                   <div className="col-md-12 mb-4">
-                    {/* Dynamic Addons Section */}
-                    <div className="col-md-12 mb-4">
-                      <h5>Addons</h5>
                       <AddonsFieldArray name="addons" />
-                    </div>
                   </div>
               </div>
+               <div className="col-md-12 mb-4">
+                    <VariantsFieldArray name="variants" initialPreviews={data.variants?.map((v: any) => [v.image]) || []} />
+                </div>
           </div>
 
           <div className="d-flex justify-content-end mt-4">

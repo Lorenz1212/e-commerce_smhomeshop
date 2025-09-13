@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('permission_parents', function (Blueprint $table) {
             $table->id(); // AUTO_INCREMENT primary key
             $table->string('name')->nullable();
-            $table->enum('is_active', ['Y', 'N'])->default('Y');
+            $table->integer('order_by')->nullable();
             $table->timestamps(); // created_at & updated_at
+            $table->softDeletes();
         });
     }
 

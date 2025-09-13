@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('delivery_riders', function (Blueprint $table) {
+       Schema::create('product_variant_images', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('phone')->nullable();
+            $table->foreignId('variant_id')
+                ->constrained('product_variants')
+                ->onDelete('cascade');
+            $table->string('filename'); // path or URL
+            $table->boolean('is_primary')->default(false);
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('delivery_riders');
+       Schema::dropIfExists('product_variant_images');
     }
 };

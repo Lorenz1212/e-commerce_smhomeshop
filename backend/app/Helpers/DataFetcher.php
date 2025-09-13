@@ -8,6 +8,7 @@ use App\Exceptions\ExceptionHandler;
 use App\Models\Addon;
 use App\Models\FeedbackSource;
 use App\Models\PermissionParent;
+use App\Models\ProductBrand;
 use App\Models\ProductCategory;
 use App\Models\SentimentModel;
 use App\Models\Store;
@@ -46,6 +47,32 @@ class DataFetcher extends Controller {
     public function getProductCategory(Request $request){
         try{
             $query = ProductCategory::query();
+
+            if(isset($request->id)){
+                $id = $request->category_id;
+                $query->where('id',$id);
+            }
+
+            $result = $query->get();
+
+            $data = [];
+
+            foreach($result as $row){
+                $data[] = [
+                    'id' => $row->id,
+                    'name' => $row->name
+                ];
+            }
+
+            return response()->json($data,200);
+        } catch (\Throwable $e) {
+            return ExceptionHandler::handle($e);
+        }
+    }
+
+    public function getProductBrand(Request $request){
+        try{
+            $query = ProductBrand::query();
 
             if(isset($request->id)){
                 $id = $request->category_id;
@@ -149,8 +176,7 @@ class DataFetcher extends Controller {
         }
     }
 
-    public function getPermissions()
-    {
+    public function getPermissions(){
         try {
             $permissionParents = PermissionParent::with('permissions')->get();
 
@@ -174,8 +200,7 @@ class DataFetcher extends Controller {
         }
     }
 
-    public function getRoles()
-    {
+    public function getRoles(){
         try {
             $roles = Role::whereNotIn('name',['core','cashier'])->get();
 

@@ -70,6 +70,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/sentimentModel', [DataFetcher::class, 'getSentimentModel']);
             Route::get('/store', [DataFetcher::class, 'getStores']);
             Route::get('/addons', [DataFetcher::class, 'getAddons']);
+            Route::get('/brands', [DataFetcher::class, 'getProductBrand']);
          });
     });
 });

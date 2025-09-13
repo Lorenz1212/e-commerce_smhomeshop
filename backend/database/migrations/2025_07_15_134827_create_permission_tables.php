@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('description');
             $table->string('guard_name'); // For MyISAM use string('guard_name', 25);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['name', 'guard_name']);
 

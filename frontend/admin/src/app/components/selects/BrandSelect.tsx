@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import Select from 'react-select'
-import { fetchData } from '@@@@@/categoryService'
+import { fetchData } from '@@@@@/brandService'
 import clsx from 'clsx'
 
 interface Props {
@@ -13,8 +13,7 @@ interface Props {
   touched?: boolean
 }
 
-
-export const CategorySelect: React.FC<Props> = ({
+export const BrandSelect: React.FC<Props> = ({
   setClass,
   name,
   value,
@@ -39,7 +38,7 @@ export const CategorySelect: React.FC<Props> = ({
 
   return (
     <div className={setClass}>
-      <label className='form-label required'>Category</label>
+      <label className='form-label required'>Brands</label>
       <Select
         name={name}
         options={options}

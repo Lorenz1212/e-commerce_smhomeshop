@@ -5,20 +5,23 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
-class ProductImage extends BaseModel
+class ProductBrand extends BaseModel
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'product_id', 'filename', 'is_primary'
+         'name', 'image'
     ];
 
     protected $hidden = [
         'id',
-        'product_id',
-        'filename'
+        'image',
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
      protected $appends = [
@@ -52,23 +55,18 @@ class ProductImage extends BaseModel
         );
     }
 
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
-    }
-
     protected function imageCover(): Attribute
     {
         return Attribute::make(
             get: function () {
-                $path = 'images/products/'.$this->filename;
+                $path = 'images/brands/'.$this->image;
                 if ($this->filename && Storage::disk('public')->exists($path)) {
                     // Get the full URL to the image file
-                    return url(Storage::url('images/products/'.$this->filename));
+                    return url(Storage::url('images/brands/'.$this->image));
                 }
 
                 // Return the full URL to the default image
-                return url(Storage::url('images/products/default.jpg'));
+                return url(Storage::url('images/brands/default.jpg'));
             }
         );
     }

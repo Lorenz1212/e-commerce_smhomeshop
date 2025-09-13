@@ -39,7 +39,7 @@ export const SupplierSelect: React.FC<Props> = ({
 
   return (
     <div className={setClass}>
-      <label className='form-label'>Supplier</label>
+      <label className='form-label required'>Supplier</label>
       <Select
         name={name}
         options={options}

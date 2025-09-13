@@ -33,6 +33,7 @@ export const useProduct = () => {
           'sku',
           'name',
           'description',
+          'brand_id',
           'category_id',
           'supplier_id',
           'add_new_stocks',
@@ -51,6 +52,25 @@ export const useProduct = () => {
           formData.append(`addons[${index}][id]`, addon.id)
           formData.append(`addons[${index}][base_price]`, addon.base_price.toString())
           formData.append(`addons[${index}][custom_price]`, addon.custom_price.toString())
+        })
+
+        values.variants.forEach((variant:any, index:any) => {
+          formData.append(`variants[${index}][id]`, variant.id)
+          formData.append(`variants[${index}][sku]`, variant.sku.toString())
+          formData.append(`variants[${index}][variant_name]`, variant.variant_name.toString())
+          formData.append(`variants[${index}][quantity_on_hand]`, variant.quantity_on_hand.toString())
+          formData.append(`variants[${index}][reorder_point]`, variant.reorder_point.toString())
+          formData.append(`variants[${index}][cost_price]`, variant.cost_price.toString())
+          formData.append(`variants[${index}][selling_price]`, variant.selling_price.toString())
+          // ✅ Handle multiple images correctly
+          if (variant.image && Array.isArray(variant.image)) {
+            variant.image.forEach((file: File) => {
+              formData.append(`variants[${index}][image][]`, file);
+            });
+          } else if (variant.image instanceof File) {
+            // ✅ If single file only
+            formData.append(`variants[${index}][image][]`, variant.image);
+          }
         })
 
         const res = await apiMultipart.post(`/admin/product/${id}/update`, formData)
@@ -88,6 +108,7 @@ export const useProduct = () => {
         'sku',
         'name',
         'description',
+        'brand_id',
         'category_id',
         'supplier_id',
         'quantity_on_hand',
@@ -109,6 +130,24 @@ export const useProduct = () => {
         formData.append(`addons[${index}][custom_price]`, addon.custom_price.toString())
       })
 
+      values.variants.forEach((variant: any, index: number) => {
+        formData.append(`variants[${index}][sku]`, variant.sku.toString());
+        formData.append(`variants[${index}][variant_name]`, variant.variant_name.toString());
+        formData.append(`variants[${index}][quantity_on_hand]`, variant.quantity_on_hand.toString());
+        formData.append(`variants[${index}][reorder_point]`, variant.reorder_point.toString());
+        formData.append(`variants[${index}][cost_price]`, variant.cost_price.toString());
+        formData.append(`variants[${index}][selling_price]`, variant.selling_price.toString());
+
+        // ✅ Handle multiple images correctly
+        if (variant.image && Array.isArray(variant.image)) {
+          variant.image.forEach((file: File) => {
+            formData.append(`variants[${index}][image][]`, file);
+          });
+        } else if (variant.image instanceof File) {
+          // ✅ If single file only
+          formData.append(`variants[${index}][image][]`, variant.image);
+        }
+      });
 
       const res = await apiMultipart.post('/admin/product/store',  formData )
       Swal.fire({

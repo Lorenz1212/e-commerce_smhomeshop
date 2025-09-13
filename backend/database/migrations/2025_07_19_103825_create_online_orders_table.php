@@ -21,6 +21,7 @@ return new class extends Migration
             
             // Order lifecycle
             $table->enum('status', [
+                'RESERVED',        // order placed to reserved
                 'PENDING',        // order placed but not processed yet
                 'PROCESSING',     // being prepared/packed
                 'SHIPPED',        // handed over to courier
@@ -31,7 +32,7 @@ return new class extends Migration
 
             // Payment
             $table->enum('payment_status', ['PENDING', 'PAID', 'FAILED', 'REFUNDED'])->default('PENDING');
-            $table->enum('payment_method', ['CASH_ON_DELIVERY', 'CARD', 'GCASH', 'PAYPAL'])->default('CASH_ON_DELIVERY');
+            $table->enum('payment_method', ['CASH_ON_DELIVERY', 'CARD', 'GCASH', 'PAYPAL', 'CASH'])->default('CASH_ON_DELIVERY');
 
             // Amounts
             $table->decimal('subtotal', 10, 2)->default(0);

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreignId('brand_id')->constrained('product_brands')->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
             $table->integer('quantity_on_hand');
-            $table->integer('stocks_alert')->default(0);
+            // $table->integer('stocks_alert')->default(0);
             $table->integer('reorder_point');
             $table->decimal('cost_price', 10, 2);
             $table->decimal('selling_price', 10, 2);

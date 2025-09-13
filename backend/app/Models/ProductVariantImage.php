@@ -7,25 +7,25 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Storage;
 
-class ProductImage extends BaseModel
+class ProductVariantImage extends BaseModel
 {
     use HasFactory;
 
     protected $fillable = [
-        'product_id', 'filename', 'is_primary'
-    ];
-
-    protected $hidden = [
-        'id',
-        'product_id',
-        'filename'
+        'variant_id', 'filename', 'is_primary'
     ];
 
      protected $appends = [
         'id_encrypted',
         'row_number',
         'created_at_format',
+        'stock_status',
         'image_cover'
+    ];
+
+    protected $casts = [
+        'attributes' => 'array', // JSON cast to array
+        'is_active' => 'boolean',
     ];
 
     protected function rowNumber(): Attribute
@@ -52,9 +52,9 @@ class ProductImage extends BaseModel
         );
     }
 
-    public function product()
+    public function variant()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
     protected function imageCover(): Attribute
@@ -64,11 +64,12 @@ class ProductImage extends BaseModel
                 $path = 'images/products/'.$this->filename;
                 if ($this->filename && Storage::disk('public')->exists($path)) {
                     // Get the full URL to the image file
-                    return url(Storage::url('images/products/'.$this->filename));
+                    return url(Storage::url('images/variants/'.$this->filename));
                 }
 
                 // Return the full URL to the default image
-                return url(Storage::url('images/products/default.jpg'));
+                return url(Storage::url('images/variants/default.jpg'));
+                           
             }
         );
     }
