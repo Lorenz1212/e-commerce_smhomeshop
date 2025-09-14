@@ -124,6 +124,8 @@ export const useProduct = () => {
         formData.append('images[]', file)
       })
 
+      formData.append("primary_index", values.primary_index)
+
       values.addons.forEach((addon:any, index:any) => {
         formData.append(`addons[${index}][id]`, addon.id)
         formData.append(`addons[${index}][base_price]`, addon.base_price.toString())

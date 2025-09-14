@@ -2,12 +2,12 @@
 import React from 'react'
 import { DataTable, Column } from '@@@/DataTable'
 import { ActionsCell } from '@@@/datatable/ActionsCell'
-import { ProductCategoryModel } from '../../core/_model'
+import { ProductBrandModel } from '../../core/_model'
 import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
 
 type Props = {
-  data: ProductCategoryModel[]
+  data: ProductBrandModel[]
   loading: boolean
   pagination: any
   sortColumn: string
@@ -20,7 +20,7 @@ type Props = {
   setRefreshFirstTable?: (refresh: boolean) =>void
 }
 
-export const ProductCategoryArchivedTable: React.FC<Props> = ({
+export const ProductBrandArchivedTable: React.FC<Props> = ({
   data,
   loading,
   pagination,
@@ -33,14 +33,14 @@ export const ProductCategoryArchivedTable: React.FC<Props> = ({
   setRefreshTable,
   setRefreshFirstTable
 }) => {
-  const columns: Column<ProductCategoryModel>[] = [
+  const columns: Column<ProductBrandModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     {
       title: 'Items',
       key: 'image_cover',
       render: (item:any) => (
         <ImageTitleCell
-            image={item.images[0]?.image_cover??toAbsoluteUrl('media/default.jpg')}
+            image={item.image_cover??toAbsoluteUrl('media/default.jpg')}
             mainTitle={item.name}
         />
       ),
@@ -62,7 +62,7 @@ export const ProductCategoryArchivedTable: React.FC<Props> = ({
       {loading ? (
         <div className="alert alert-info">Loading...</div>
       ) : (
-        <DataTable<ProductCategoryModel>
+        <DataTable<ProductBrandModel>
           data={data}
           columns={columns}
           loading={loading}

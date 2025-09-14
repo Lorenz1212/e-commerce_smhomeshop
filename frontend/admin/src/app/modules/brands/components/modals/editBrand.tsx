@@ -2,38 +2,36 @@ import {FC, useEffect, useState} from 'react'
 import * as Yup from 'yup'
 import {useFormik} from 'formik'
 import clsx from 'clsx'
-import { useProductCategory } from '../../core/_request'
+
 import { ImageUploader } from '@@@/uploader/ImageUploader'
-import { Form } from 'react-bootstrap'
+import { useProductBrand } from '@@/brands/core/_request'
 
 
 interface Props {
-  categoryID:string
+  brandID:string
   data:any
   setRefreshTable?: (values: boolean) => void
   onSubmit?: (values: any) => void
 }
 
- 
-
-const EditCategoryModal: FC<Props> = ({
-  categoryID,
+const EditBrandModal: FC<Props> = ({
+  brandID,
   data,
   setRefreshTable,
   onSubmit,
 }) => {
 
-  const { updateProductCategory } = useProductCategory()
+  const { updateProductBrand } = useProductBrand()
 
   const [imagePreviews, setImagePreviews] = useState<string[]>(
-    data?.images?.map((img: any) => img.image_cover) || []
-  )
+    data?.image_cover ? [data.image_cover] : []
+  );
 
   const Schema = Yup.object().shape({
     name: Yup.string()
       .min(1, 'Minimum 1 character')
       .max(50, 'Maximum 50 characters')
-      .required('Category name is required'),
+      .required('Brand name is required'),
     images: Yup.mixed()
         .test('images', 'At least one image required', function (value) {
           return (
@@ -50,9 +48,9 @@ const EditCategoryModal: FC<Props> = ({
     },
     validationSchema: Schema,
     onSubmit: async (values, {resetForm}) => {
-      await updateProductCategory(
+      await updateProductBrand(
         values,
-        categoryID,
+        brandID,
         setRefreshTable
       )
       onSubmit?.(values)
@@ -68,13 +66,13 @@ const EditCategoryModal: FC<Props> = ({
               formik={formik}
               previews={imagePreviews}
               setPreviews={setImagePreviews}
-              label="Category Images"
+              label="Upload Image"
               maxFiles={1}
             />
         </div>
         {/*  Name */}
         <div className='col-md-12 mb-3'>
-          <label className='form-label'>Product Category</label>
+          <label className='form-label'>Brand Name</label>
           <input
             type='text'
             className={clsx('form-control', {
@@ -97,4 +95,4 @@ const EditCategoryModal: FC<Props> = ({
   )
 }
 
-export {EditCategoryModal}
+export {EditBrandModal}

@@ -65,6 +65,8 @@ class StoreProductRequest extends FormRequest
             'images.*' => 'required|file|mimes:jpg,png,jpeg|max:2048',
             'filename' => 'nullable|array',
             'filename.*' => 'nullable|string',
+
+            'primary_index' => 'required|integer|min:0',
         ];
     }
 

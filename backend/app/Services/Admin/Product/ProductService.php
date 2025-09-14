@@ -15,7 +15,7 @@ class ProductService
 {
     public function getProductList($request)
     {
-        $data = Product::with(['category','images']);
+        $data = Product::with(['category','primaryImage']);
 
         $normalFields = ['name', 'category.name','cost_price', 'status', 'selling_price', 'quantity_on_hand', 'reorder_point','created_at']; 
         
@@ -32,7 +32,7 @@ class ProductService
 
     public function getArchivedList($request)
     {
-        $data = Product::onlyTrashed()->with(['category','images']);
+        $data = Product::onlyTrashed()->with(['category','primaryImage']);
 
         $normalFields = ['name', 'category.name','cost_price', 'status', 'selling_price', 'quantity_on_hand', 'reorder_point','created_at']; 
         
@@ -56,7 +56,14 @@ class ProductService
             'variants'
         ])->findOrFail($product_id);
 
-        $response->image = $response->images->first()?->image_cover;
+        $primaryImage = $response->images->firstWhere('is_primary', 1);
+
+        $response->image = $primaryImage?->image_cover;
+
+        $primaryIndex = $response->images
+            ->search(fn($img) => $img->is_primary == 1);
+
+        $response->primary_index = $primaryIndex;
 
         $response->product_addons->transform(function ($productAddon) {
             $productAddon->base_price = $productAddon->addon->base_price ?? null;
@@ -89,10 +96,11 @@ class ProductService
         ]);
 
         foreach ($data['filename'] ?? [] as $index => $filename) {
+            $isPrimary = ($index == $data['primary_index']);
             ProductImage::create([
                 'product_id' => $product->id,
                 'filename' => $filename,
-                'is_primary' => $index === 0 ? 1 : 0, // first image is primary
+                'is_primary' => $isPrimary
             ]);
         }
 
@@ -162,6 +170,8 @@ class ProductService
                     'filename' => $filename,
                 ]);
             }
+        }else{
+
         }
 
         if (!empty($data['addons'])) {
@@ -177,6 +187,35 @@ class ProductService
             }
         }else{
             $product->product_addons()->delete();
+        }
+
+         if(!empty($data['variants'])){
+            foreach ($data['variants'] as $variant) {
+
+                $newVariant = ProductVariant::create([
+                    'product_id' => $product->id,
+                    'sku' =>  $variant['sku'],
+                    'variant_name' => $variant['variant_name'],
+                    'quantity_on_hand'=> $variant['quantity_on_hand'],
+                    'reorder_point'=> $variant['reorder_point'],
+                    'cost_price'=> $variant['cost_price'],
+                    'selling_price'=> $variant['selling_price'],
+                    'attributes' => $variant['attributes'] ?? null,
+                ]);
+
+                if (!empty($variant['filename'])) {
+                    // If multiple images, loop through them
+                    $filenames = is_array($variant['filename']) ? $variant['filename'] : [$variant['filename']];
+
+                    foreach ($filenames as $index => $filename) {
+                        ProductVariantImage::create([
+                            'variant_id' => $newVariant->id, 
+                            'filename'   => $filename,
+                            'is_primary' => $index === 0 ? 1 : 0,
+                        ]);
+                    }
+                }
+            }
         }
      
      

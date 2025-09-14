@@ -9,6 +9,7 @@ import {WithChildren} from '../../_metronic/helpers'
 import BuilderPageWrapper from '../pages/layout-builder/BuilderPageWrapper'
 
 const PrivateRoutes = () => {
+  
   const ProfilePage = lazy(() => import('@@/profile/ProfilePage'))
   const AccountPage = lazy(() => import('@@/accounts/AccountPage'))
   const ProductPage = lazy(() => import('@@/products/ProductPage'))
@@ -19,7 +20,8 @@ const PrivateRoutes = () => {
   const FeedbackPage = lazy(() => import('@@/feedback/FeedbackPage'))
   const CustomerPage = lazy(() => import('@@/customers/CustomerPage'))
   const ReportPage = lazy(() => import('@@/reports/ReportPage'))
-  
+  const ProductBrandPage = lazy(() => import('@@/brands/ProductBrandPage'))
+
   return (
     <Routes>
       <Route element={<MasterLayout />}>
@@ -51,6 +53,14 @@ const PrivateRoutes = () => {
           element={
             <SuspensedView>
               <AddonPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path='product/brands/list'
+          element={
+            <SuspensedView>
+              <ProductBrandPage />
             </SuspensedView>
           }
         />

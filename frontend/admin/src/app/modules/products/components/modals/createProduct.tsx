@@ -118,6 +118,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
         cost_price: '',
         selling_price: '',
         images: [] as File[],
+        primary_index: 0,
         addons: [] as Addon[],
         variants: [] as any[],
       }}
@@ -253,7 +254,14 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
           {step === 3 && 
             (
               <>
-              <ImageUploader name="images" formik={formik} previews={imagePreviews} setPreviews={setImagePreviews} label="Product Images" maxFiles={5} />
+              <ImageUploader 
+                name="images" 
+                formik={formik} 
+                previews={imagePreviews} 
+                setPreviews={setImagePreviews} 
+                label="Product Images" 
+                maxFiles={5} 
+                />
                 {formik.errors.images && (
                   <div className="invalid-feedback d-block">{formik.errors.images as string}</div>
                 )}
@@ -268,17 +276,15 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
           {/* Navigation Buttons */}
           <div className="d-flex justify-content-between mt-4">
             {step > 1 && <button type="button" className="btn btn-light" onClick={prevStep}>Back</button>}
-            {step < steps.length ? (
+           {step < steps.length ? (
               <button
                 type="button"
                 className="btn btn-primary"
                 onClick={async () => {
-                  // Validate current step
                   try {
                     await StepSchemas[step - 1].validate(formik.values, { abortEarly: false })
                     nextStep(formik.values, formik.validateForm)
                   } catch (err: any) {
-                    // mark errors in Formik
                     const errors: any = {}
                     err.inner.forEach((e: any) => { errors[e.path] = e.message })
                     formik.setErrors(errors)
@@ -288,7 +294,22 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
                 Next
               </button>
             ) : (
-              <button type="submit" className="btn btn-success">Submit</button>
+              <button
+                type="button"
+                className="btn btn-success"
+                onClick={async () => {
+                  try {
+                    await StepSchemas[step - 1].validate(formik.values, { abortEarly: false })
+                    formik.handleSubmit() // ✅ trigger submit only after validation
+                  } catch (err: any) {
+                    const errors: any = {}
+                    err.inner.forEach((e: any) => { errors[e.path] = e.message })
+                    formik.setErrors(errors)
+                  }
+                }}
+              >
+                Submit
+              </button>
             )}
           </div>
         </form>

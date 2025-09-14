@@ -89,6 +89,7 @@ const ActionsCell: FC<Props> = ({
             </a>
           </div>
         )}
+        
         {resetAction && (
           <div className='menu-item px-3'>
             <a

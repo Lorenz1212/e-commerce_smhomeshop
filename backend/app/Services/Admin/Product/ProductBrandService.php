@@ -10,7 +10,7 @@ class ProductBrandService
 {
     public function getListBrand($request)
     {
-        $data = ProductBrand::with(['images']);
+        $data = ProductBrand::query();
 
         $normalFields = ['name', 'is_active', 'created_at_format']; 
         
@@ -26,9 +26,9 @@ class ProductBrandService
 
     public function getArchivedList($request)
     {
-        $data = ProductBrand::onlyTrashed()->with(['images']);
+        $data = ProductBrand::onlyTrashed();
 
-        $normalFields = ['name', 'is_active', 'created_at_format']; 
+        $normalFields = ['name', 'created_at_format']; 
         
         $sortableColumns = [
             'row_number'          => 'row_number',

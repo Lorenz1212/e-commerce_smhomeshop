@@ -4,9 +4,10 @@ namespace App\Http\Controllers\API\Admin\Product;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Brand\StoreProductBrandRequest;
+use App\Http\Requests\Brand\UpdateProductBrandRequest;
 use App\Services\Admin\Product\ProductBrandService;
-use App\Http\Requests\Category\StoreProductCategoryRequest;
-use App\Http\Requests\Category\UpdateProductCategoryRequest;
+
 use Illuminate\Support\Facades\DB;
 
 class ProductBrandController extends Controller
@@ -34,7 +35,7 @@ class ProductBrandController extends Controller
         return $this->returnData($data);
     }
     
-    public function store(StoreProductCategoryRequest $request){
+    public function store(StoreProductBrandRequest $request){
         try {
             DB::beginTransaction();
 
@@ -50,7 +51,7 @@ class ProductBrandController extends Controller
         }
     }
 
-    public function update(string $brand_id, UpdateProductCategoryRequest $request){
+    public function update(string $brand_id, UpdateProductBrandRequest $request){
         try {
             DB::beginTransaction();
 

@@ -35,6 +35,27 @@ export function AsideMenuMain() {
         bsTitle={intl.formatMessage({id: 'MENU.DASHBOARD'})}
         className='py-3'
       />
+       
+      {
+         (permissions.includes("view_online_order_list") || permissions.includes("view_walkin_order_list")) && (
+               <AsideMenuItemWithSubMain 
+                to='/transactions' 
+                title='Transactions' 
+                fontIcon='bi-card-list' 
+                bsTitle='Transactions'>
+                {
+                   (permissions.includes("view_online_order_list")) && (
+                     <AsideMenuItem to='/transactions/online/order/list' title='Orders' hasBullet={true} />
+                   )
+                }
+                {/* {
+                   (permissions.includes("view_online_order_list")) && (
+                    <AsideMenuItem to='/transactions/walkin/order/list' title='In-Store Order' hasBullet={true} />
+                   )
+                } */}
+              </AsideMenuItemWithSubMain>
+         )
+       }
       {
          (permissions.includes("view_customer_list")) && (
             <AsideMenuItem
@@ -83,6 +104,18 @@ export function AsideMenuMain() {
          )
       }
 
+       {
+         (permissions.includes("view_product_brand_list")) && (
+             <AsideMenuItem
+                to='/product/brands/list'
+                title='Product Brands'
+                bsTitle='Product Brands'
+                fontIcon='bi-ui-checks'
+                className='py-3'
+              />
+         )
+      }
+
       {
          (permissions.includes("view_supplier_list")) && (
               <AsideMenuItem
@@ -94,27 +127,7 @@ export function AsideMenuMain() {
               />
          )
       }
-    
-      {
-         (permissions.includes("view_online_order_list") || permissions.includes("view_walkin_order_list")) && (
-               <AsideMenuItemWithSubMain 
-                to='/transactions' 
-                title='Transactions' 
-                fontIcon='bi-card-list' 
-                bsTitle='Transactions'>
-                {
-                   (permissions.includes("view_online_order_list")) && (
-                     <AsideMenuItem to='/transactions/online/order/list' title='Online Order' hasBullet={true} />
-                   )
-                }
-                {
-                   (permissions.includes("view_online_order_list")) && (
-                    <AsideMenuItem to='/transactions/walkin/order/list' title='In-Store Order' hasBullet={true} />
-                   )
-                }
-              </AsideMenuItemWithSubMain>
-         )
-       }
+   
 
        {
          (permissions.includes("view_feedback_list")) && (
@@ -128,21 +141,7 @@ export function AsideMenuMain() {
          )
        }
 
-           {/* {
-         (
-         permissions.includes("view_inventory_movement_reports") || 
-         permissions.includes("view_sales_reports")
-        ) && (
-               <AsideMenuItemWithSubMain 
-                to='/reports' 
-                title='Reports' 
-                fontIcon='bi-graph' 
-                bsTitle='Reports'>
-                <AsideMenuItem to='/reports/inventory-movement' title='Inventory Movement Reports' hasBullet={true} />
-                <AsideMenuItem to='/reports/sales' title='Sales Reports' hasBullet={true} />
-              </AsideMenuItemWithSubMain>
-         )
-      } */}
+  
 
         <AsideMenuItemWithSubMain 
           to='/reports' 

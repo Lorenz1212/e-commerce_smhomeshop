@@ -12,6 +12,7 @@ interface ImageUploaderProps<T> {
   label?: string
   accept?: string
   maxFiles?: number
+  getPrimaryIndex?:number
 }
 
 export const ImageUploader = <T extends object>({
@@ -22,11 +23,13 @@ export const ImageUploader = <T extends object>({
   label = 'Upload Images',
   accept = 'image/*',
   maxFiles = 5,
+  getPrimaryIndex = 0
 }: ImageUploaderProps<T>) => {
+  
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [progresses, setProgresses] = useState<number[]>([])
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
-  const [primaryIndex, setPrimaryIndex] = useState<number>(0)
+  const [primaryIndex, setPrimaryIndex] = useState<number>(getPrimaryIndex)
 
   const disallowedExtensions = ['.exe', '.php', '.js', '.sh', '.bat', '.html', '.htm', '.svg']
 
@@ -103,7 +106,10 @@ export const ImageUploader = <T extends object>({
                     'btn btn-sm position-absolute top-0 start-0 m-1',
                     index === primaryIndex ? 'btn-success' : 'btn-secondary'
                   )}
-                  onClick={() => setPrimaryIndex(index)}
+                  onClick={() => {
+                    setPrimaryIndex(index)
+                    formik.setFieldValue("primary_index", index)
+                  }}
                 >
                   {index === primaryIndex ? '✓ Primary' : 'Set Primary'}
                 </button>

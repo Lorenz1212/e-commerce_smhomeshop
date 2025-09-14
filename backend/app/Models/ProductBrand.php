@@ -60,7 +60,7 @@ class ProductBrand extends BaseModel
         return Attribute::make(
             get: function () {
                 $path = 'images/brands/'.$this->image;
-                if ($this->filename && Storage::disk('public')->exists($path)) {
+                if ($this->image && Storage::disk('public')->exists($path)) {
                     // Get the full URL to the image file
                     return url(Storage::url('images/brands/'.$this->image));
                 }

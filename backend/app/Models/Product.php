@@ -85,6 +85,11 @@ class Product extends BaseModel
     {
         return $this->hasMany(ProductImage::class);
     }
+    
+    public function primaryImage()
+    {
+        return $this->hasOne(ProductImage::class)->where('is_primary', 1);
+    }
 
     public function addons()
     {

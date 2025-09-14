@@ -2,25 +2,26 @@
 import React from 'react'
 import { DataTable, Column } from '@@@/DataTable'
 import { ActionsCell } from '@@@/datatable/ActionsCell'
-import { ProductCategoryModel } from '../../core/_model'
+import { ProductBrandModel } from '../../core/_model'
 import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
 
 type Props = {
-  data: ProductCategoryModel[]
+  data: ProductBrandModel[]
   loading: boolean
   pagination: any
   sortColumn: string
   sortDirection: 'asc' | 'desc'
   onPageChange: (page: number) => void
   onSortChange: (col: string, dir: 'asc' | 'desc') => void
-  onRestore: (id: string, setRefreshTable?: (refresh: boolean) =>void, setRefreshFirstTable?: (refresh: boolean) =>void) => void
+  onEdit: (id: string) => void
+  onView: (id: string) => void
+  onArchive: (id: string, setRefreshTable?: (refresh: boolean) =>void) => void
   setRefreshTable?: (refresh: boolean) =>void
-  onSearchChange?:(value: any) => void,
-  setRefreshFirstTable?: (refresh: boolean) =>void
+  onSearchChange?:(value: any) => void
 }
 
-export const ProductCategoryArchivedTable: React.FC<Props> = ({
+export const ProductBrandTable: React.FC<Props> = ({
   data,
   loading,
   pagination,
@@ -28,19 +29,20 @@ export const ProductCategoryArchivedTable: React.FC<Props> = ({
   sortDirection,
   onPageChange,
   onSortChange,
-  onRestore,
+  onEdit,
+  onView,
+  onArchive,
   onSearchChange,
-  setRefreshTable,
-  setRefreshFirstTable
+  setRefreshTable 
 }) => {
-  const columns: Column<ProductCategoryModel>[] = [
+  const columns: Column<ProductBrandModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     {
       title: 'Items',
       key: 'image_cover',
       render: (item:any) => (
         <ImageTitleCell
-            image={item.images[0]?.image_cover??toAbsoluteUrl('media/default.jpg')}
+            image={item.image_cover??toAbsoluteUrl('media/default.jpg')}
             mainTitle={item.name}
         />
       ),
@@ -51,7 +53,9 @@ export const ProductCategoryArchivedTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-          restoreAction={() => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable)}
+          openDetailsModal={() => onView(item.id_encrypted)}
+          openEditModal={() => onEdit(item.id_encrypted)}
+          archiveAction={() => onArchive(item.id_encrypted,setRefreshTable)}
         />
       ),
     },
@@ -62,7 +66,7 @@ export const ProductCategoryArchivedTable: React.FC<Props> = ({
       {loading ? (
         <div className="alert alert-info">Loading...</div>
       ) : (
-        <DataTable<ProductCategoryModel>
+        <DataTable<ProductBrandModel>
           data={data}
           columns={columns}
           loading={loading}
