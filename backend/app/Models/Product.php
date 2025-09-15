@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Storage;
 
 class Product extends BaseModel
 {
@@ -22,6 +21,7 @@ class Product extends BaseModel
         'created_at_format',
         'stock_status'
     ];
+    
 
     protected function rowNumber(): Attribute
     {

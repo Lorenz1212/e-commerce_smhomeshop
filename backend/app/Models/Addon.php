@@ -13,7 +13,7 @@ class Addon extends BaseModel
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-      'name', 'base_price'
+      'name', 'base_price', 'is_freebies'
     ];
 
      protected $appends = [

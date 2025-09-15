@@ -27,6 +27,7 @@ class StoreAddonsRequest extends FormRequest
         return [
             'name' => 'required|string|max:255|unique:addons,name',
             'base_price' => 'required|numeric|min:0',
+            'is_freebies' => ['nullable', 'in:Y,N'],
         ];
     }
 }

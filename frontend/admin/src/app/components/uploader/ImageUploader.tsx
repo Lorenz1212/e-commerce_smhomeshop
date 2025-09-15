@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { FormikProps } from 'formik'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -8,11 +8,11 @@ interface ImageUploaderProps<T> {
   name: keyof T
   formik: FormikProps<T>
   previews: string[]
-  setPreviews: (previews: string[]) => void
+  setPreviews: (previews: any[]) => void
   label?: string
   accept?: string
   maxFiles?: number
-  getPrimaryIndex?:number
+  getPrimaryIndex?: number
 }
 
 export const ImageUploader = <T extends object>({
@@ -23,16 +23,14 @@ export const ImageUploader = <T extends object>({
   label = 'Upload Images',
   accept = 'image/*',
   maxFiles = 5,
-  getPrimaryIndex = 0
+  getPrimaryIndex = 0,
 }: ImageUploaderProps<T>) => {
-  
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [progresses, setProgresses] = useState<number[]>([])
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [primaryIndex, setPrimaryIndex] = useState<number>(getPrimaryIndex)
 
   const disallowedExtensions = ['.exe', '.php', '.js', '.sh', '.bat', '.html', '.htm', '.svg']
-
   const hasDisallowedExtension = (file: File) =>
     disallowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
 
@@ -47,8 +45,10 @@ export const ImageUploader = <T extends object>({
     if (maxFiles === 1) {
       const newFile = validFiles[0]
       if (!newFile) return
+
       previews[0] && URL.revokeObjectURL(previews[0])
       const objectUrl = URL.createObjectURL(newFile)
+
       formik.setFieldValue(name as string, [newFile])
       setPreviews([objectUrl])
       setProgresses([100])
@@ -57,10 +57,11 @@ export const ImageUploader = <T extends object>({
       const existingFiles = (formik.values[name] as File[]) || []
       const mergedFiles = [...existingFiles, ...validFiles].slice(0, maxFiles)
       formik.setFieldValue(name as string, mergedFiles)
+
       previews.forEach(url => URL.revokeObjectURL(url))
       const newPreviews = mergedFiles.map(file => URL.createObjectURL(file))
       setPreviews(newPreviews)
-      setProgresses(Array(mergedFiles.length).fill(100))
+      setProgresses(Array(newPreviews.length).fill(100))
       if (primaryIndex >= newPreviews.length) setPrimaryIndex(0)
     }
 
@@ -90,7 +91,7 @@ export const ImageUploader = <T extends object>({
 
       <div className="d-flex flex-wrap gap-2 mb-2">
         {previews.length > 0 ? (
-          previews.map((preview, index) => (
+          previews.filter(Boolean).map((preview, index) => (
             <div
               key={index}
               className={clsx(
@@ -98,7 +99,6 @@ export const ImageUploader = <T extends object>({
                 { 'border border-success border-3': index === primaryIndex }
               )}
             >
-              {/* Set Primary Button */}
               {previews.length > 1 && (
                 <button
                   type="button"
@@ -108,14 +108,13 @@ export const ImageUploader = <T extends object>({
                   )}
                   onClick={() => {
                     setPrimaryIndex(index)
-                    formik.setFieldValue("primary_index", index)
+                    formik.setFieldValue('primary_index', index)
                   }}
                 >
                   {index === primaryIndex ? '✓ Primary' : 'Set Primary'}
                 </button>
               )}
 
-              {/* Image */}
               <img
                 src={preview}
                 alt={`Preview ${index}`}
@@ -135,7 +134,6 @@ export const ImageUploader = <T extends object>({
                 />
               </div>
 
-              {/* Remove Button */}
               <button
                 type="button"
                 className="btn btn-icon btn-circle btn-active-color-primary w-25px h-25px bg-body shadow remove-button"
@@ -148,7 +146,7 @@ export const ImageUploader = <T extends object>({
         ) : (
           <div className="position-relative image-preview-container image-input-wrapper w-150px h-150px">
             <img
-              src="/media/products/default.jpg"
+              src="/media/default.jpg"
               alt="Default Preview"
               className="img-thumbnail preview-image"
             />
@@ -182,7 +180,7 @@ export const ImageUploader = <T extends object>({
           open={lightboxIndex !== null}
           close={() => setLightboxIndex(null)}
           index={lightboxIndex}
-          slides={previews.map(url => ({ src: url }))}
+          slides={previews.filter(Boolean).map(url => ({ src: url }))}
         />
       )}
     </div>

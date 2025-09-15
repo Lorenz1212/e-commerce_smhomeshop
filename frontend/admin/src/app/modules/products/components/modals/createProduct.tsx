@@ -12,7 +12,7 @@ import { BrandSelect } from '@@@/selects/BrandSelect'
 
 interface Option { id: string | number; name: string }
 
-interface Addon { id: number; base_price: any | ''; custom_price: any | '' }
+interface Addon { id: number; base_price: any | ''; custom_price: any | '', is_freebies : string | 'N' }
 
 interface CreateProductModalProps {
   categories?: Option[]
@@ -49,23 +49,50 @@ const StepSchemas = [
   }),
   // Step 4: Addons
   Yup.object().shape({
-    addons: Yup.array().of(
-      Yup.object().shape({
-        id: Yup.number().required('Addon is required'),
-        base_price: Yup.number()
-          .typeError('Base price must be a number')
-          .required('Base price is required')
-          .min(0, 'Cannot be negative'),
-        custom_price: Yup.number()
-          .typeError('Custom price must be a number')
-          .min(0, 'Cannot be negative')
-          .test('custom-vs-base', 'Custom price cannot be less than base price', function (value) {
-            const { base_price } = this.parent
-            if (value === undefined || value === null) return true
-            return value >= base_price
-          }),
-      })
-    ),
+    addons: Yup.array()
+      .min(0, 'At least one addon is required')
+      .of(
+        Yup.object().shape({
+          id: Yup.number().required('Addon is required'),
+
+          is_freebies: Yup.string().oneOf(['Y', 'N']).required(),
+
+          base_price: Yup.number()
+            .transform((val, orig) => (orig === '' ? null : val)) // handle empty string
+            .min(0, 'Cannot be negative')
+            .when('is_freebies', {
+              is: 'Y',
+              then: (schema) => schema.notRequired().nullable(),
+              otherwise: (schema) => schema.required('Base price is required'),
+            }),
+
+          custom_price: Yup.number()
+            .transform((val, orig) => (orig === '' ? null : val))
+            .min(0, 'Cannot be negative')
+            .when('is_freebies', {
+              is: 'Y',
+              then: (schema) =>
+                schema.test(
+                  'must-be-zero-if-freebie',
+                  'Custom price must be 0 for freebies',
+                  (value) =>
+                    value === 0 ||
+                    value === null ||
+                    value === undefined
+                ),
+              otherwise: (schema) =>
+                schema.test(
+                  'custom-vs-base',
+                  'Custom price cannot be less than base price',
+                  function (value) {
+                    const { base_price } = this.parent
+                    if (value === undefined || value === null) return true
+                    return value >= base_price
+                  }
+                ),
+            }),
+        })
+      ),
   }),
   // Step 5: Variants
   Yup.object().shape({
@@ -262,14 +289,18 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
                 label="Product Images" 
                 maxFiles={5} 
                 />
-                {formik.errors.images && (
-                  <div className="invalid-feedback d-block">{formik.errors.images as string}</div>
-                )}
               </>
             )
           }
 
-          {step === 4 && <AddonsFieldArray name="addons" />}
+          {step === 4 && (
+            <>
+              <AddonsFieldArray name="addons" />
+               {formik.touched.addons && typeof formik.errors.addons === 'string' && (
+                <div className="invalid-feedback">{formik.errors.addons}</div>
+              )}
+            </>
+          )}
 
           {step === 5 && <VariantsFieldArray name="variants" />}
 
@@ -282,6 +313,10 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
                 className="btn btn-primary"
                 onClick={async () => {
                   try {
+                    Object.fromEntries(
+                        Object.keys(StepSchemas[step - 1].fields).map((field) => [field, true])
+                      ),
+
                     await StepSchemas[step - 1].validate(formik.values, { abortEarly: false })
                     nextStep(formik.values, formik.validateForm)
                   } catch (err: any) {

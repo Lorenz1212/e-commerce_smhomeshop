@@ -51,18 +51,47 @@ const StepSchemas = [
     }),
   }),
   Yup.object().shape({
-    addons: Yup.array().of(
+  addons: Yup.array()
+    .min(1, 'At least one addon is required')
+    .of(
       Yup.object().shape({
-        id: Yup.number().required('Addon name is required'),
-        base_price: Yup.number().typeError('Base price must be a number')
-          .required('Base price is required')
-          .min(0, 'Base price cannot be negative'),
-        custom_price: Yup.number().typeError('Custom price must be a number')
-          .min(0, 'Custom price cannot be negative')
-          .test('custom-vs-base', 'Custom price cannot be less than base price', function (value) {
-            const { base_price } = this.parent
-            if (value === undefined || value === null) return true
-            return value >= base_price
+        id: Yup.number().required('Addon is required'),
+
+        is_freebies: Yup.string().oneOf(['Y', 'N']).required(),
+
+        base_price: Yup.number()
+          .transform((val, orig) => (orig === '' ? null : val)) // handle empty string
+          .min(0, 'Cannot be negative')
+          .when('is_freebies', {
+            is: 'Y',
+            then: (schema) => schema.notRequired().nullable(),
+            otherwise: (schema) => schema.required('Base price is required'),
+          }),
+
+        custom_price: Yup.number()
+          .transform((val, orig) => (orig === '' ? null : val))
+          .min(0, 'Cannot be negative')
+          .when('is_freebies', {
+            is: 'Y',
+            then: (schema) =>
+              schema.test(
+                'must-be-zero-if-freebie',
+                'Custom price must be 0 for freebies',
+                (value) =>
+                  value === 0 ||
+                  value === null ||
+                  value === undefined
+              ),
+            otherwise: (schema) =>
+              schema.test(
+                'custom-vs-base',
+                'Custom price cannot be less than base price',
+                function (value) {
+                  const { base_price } = this.parent
+                  if (value === undefined || value === null) return true
+                  return value >= base_price
+                }
+              ),
           }),
       })
     ),
@@ -102,7 +131,7 @@ const EditProductModal: FC<EditProductModalProps> = ({
   }
 
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1))
-
+  
   return (
     <Formik
       initialValues={{
@@ -123,6 +152,7 @@ const EditProductModal: FC<EditProductModalProps> = ({
             id: addon.addon_id,
             base_price: addon.base_price ?? '',
             custom_price: addon.custom_price ?? '',
+            is_freebies: addon.addon?.is_freebies ?? 'N',
           })) || [],
         variants:
           data.variants?.map((variant: any) => ({
@@ -133,11 +163,11 @@ const EditProductModal: FC<EditProductModalProps> = ({
             reorder_point: variant.reorder_point ?? '',
             cost_price: variant.cost_price ?? '',
             selling_price: variant.selling_price ?? '',
-            image: variant.image ?? '',
+            image: variant.image_cover??null,
           })) || [],
       }}
       validationSchema={Yup.object()}
-      validateOnChange={false}
+      validateOnChange={true}
       validateOnBlur={true}
       onSubmit={async (values, { resetForm }) => {
         await updateProduct(values, productID, setRefreshTable)
@@ -153,7 +183,8 @@ const EditProductModal: FC<EditProductModalProps> = ({
               {steps.map((s, index) => (
                 <div
                   key={index}
-                  className={`flex-fill text-center ${step === index + 1 ? 'fw-bold text-primary' : 'text-muted'}`}
+                  onClick={() => setStep(index + 1)}
+                  className={`flex-fill text-center cursor-pointer ${step === index + 1 ? 'fw-bold text-primary' : 'text-muted'}`}
                 >
                   {s.label}
                 </div>
@@ -171,7 +202,6 @@ const EditProductModal: FC<EditProductModalProps> = ({
           {/* Step Content */}
           {step === 1 && (
             <div className="row">
-              {/* SKU */}
               <div className="col-md-12 mb-3">
                 <label className="form-label required">SKU</label>
                 <input
@@ -183,8 +213,6 @@ const EditProductModal: FC<EditProductModalProps> = ({
                             <div className='invalid-feedback'>{formik.errors.sku}</div>
                 )}
               </div>
-
-              {/* Name */}
               <div className="col-md-12 mb-3">
                 <label className="form-label required">Product Name</label>
                 <input
@@ -196,8 +224,6 @@ const EditProductModal: FC<EditProductModalProps> = ({
                             <div className='invalid-feedback'>{formik.errors.name}</div>
                 )}
               </div>
-
-              {/* Description */}
               <div className="col-md-12 mb-3">
                 <label className="form-label required">Description</label>
                 <textarea
@@ -227,7 +253,6 @@ const EditProductModal: FC<EditProductModalProps> = ({
                       <div className='invalid-feedback'>{formik.errors.brand_id}</div>
                   )}
               </div>
-
               <div className="col-md-6">
                 <CategorySelect
                     setClass="mb-3"
@@ -344,6 +369,11 @@ const EditProductModal: FC<EditProductModalProps> = ({
                 className="btn btn-primary"
                 onClick={async () => {
                   try {
+
+                    Object.keys(StepSchemas[step - 1].fields).forEach((field) => {
+                      formik.setFieldTouched(field, true, false)
+                    })
+                    
                     await StepSchemas[step - 1].validate(formik.values, {
                       abortEarly: false,
                       context: { imagePreviews },

@@ -4,6 +4,7 @@ import { DataTable, Column } from '@@@/DataTable'
 import { ActionsCell } from '@@@/datatable/ActionsCell'
 import { AddonModel } from '../../core/_model'
 import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
+import { KTIcon } from '@/helpers'
 
 type Props = {
   data: AddonModel[]
@@ -37,7 +38,20 @@ export const ProductCategoryTable: React.FC<Props> = ({
   const columns: Column<AddonModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     { title: 'Name',key: 'name', sortable: true },
-    { title: 'Base Price',key: 'base_price', sortable: true },
+    { 
+      title: 'Base Price',key: 'base_price', sortable: true,
+      render: (item) => (
+        <>
+          {item.is_freebies == 'Y' ? (
+            <>
+              <span className='text-success'>Freebie</span>
+            </>
+          ):(
+            item.base_price
+          )}
+        </>
+      ), 
+    },
     { title: 'Created At', key: 'created_at_format', sortable: true },
     {
       title: 'Action',

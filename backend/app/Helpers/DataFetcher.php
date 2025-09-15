@@ -166,7 +166,8 @@ class DataFetcher extends Controller {
                 $data[] = [
                     'id' => $row->id,
                     'name' => $row->name,
-                    'base_price'=>$row->base_price
+                    'base_price'=>$row->base_price,
+                    'is_freebies'=>$row->is_freebies
                 ];
             }
 

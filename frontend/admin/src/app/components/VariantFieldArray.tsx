@@ -1,6 +1,8 @@
+// VariantsFieldArray.tsx
 import { FieldArray } from 'formik'
-import { ImageUploader } from '@@@/uploader/ImageUploader'
+
 import { useState, useEffect } from 'react'
+import { ImageUploader } from './uploader/ImageUploader'
 
 interface VariantsFieldArrayProps {
   name: string
@@ -12,7 +14,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
 
   useEffect(() => {
     if (initialPreviews.length > 0) {
-      setVariantPreviews(initialPreviews)
+      setVariantPreviews(initialPreviews.map(inner => inner.filter(Boolean)))
     }
   }, [initialPreviews])
 
@@ -36,7 +38,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                   selling_price: '',
                   image: [] as File[],
                 })
-                setVariantPreviews((prev) => [...prev, []]) // add empty previews slot
+                setVariantPreviews(prev => [...prev, []])
               }}
             >
               Add Variant
@@ -44,28 +46,31 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
           </div>
 
           {arrayHelpers.form.values[name].length === 0 && (
-            <div className="mb-3 text-muted">No variant added yet.</div>
+            <div className="alert alert-secondary text-center rounded-3 py-4 shadow-sm">
+              <i className="bi bi-plus-circle fs-3 d-block mb-2 text-muted"></i>
+              <span className="fw-semibold text-muted">No variant added yet.</span>
+            </div>
           )}
 
           <div className="row">
             {arrayHelpers.form.values[name].map((variant: any, index: number) => (
               <div key={index} className="col-md-3 mb-4">
                 <div className="border rounded p-3 mb-3">
-                  {/* Image Uploader */}
                   <ImageUploader
                     name={`${name}[${index}].image`}
                     formik={arrayHelpers.form}
                     previews={variantPreviews[index] || []}
-                    setPreviews={(newPrevs) => {
-                      const updated = [...variantPreviews]
-                      updated[index] = newPrevs
-                      setVariantPreviews(updated)
+                    setPreviews={(newPrevs:any) => {
+                      setVariantPreviews(prev => {
+                        const updated = [...prev]
+                        updated[index] = newPrevs.filter(Boolean)
+                        return updated
+                      })
                     }}
                     label="Variant Image"
                     maxFiles={1}
                   />
 
-                  {/* SKU */}
                   <label className="form-label required">Variant SKU</label>
                   <input
                     type="text"
@@ -74,8 +79,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                     {...arrayHelpers.form.getFieldProps(`${name}[${index}].sku`)}
                   />
 
-                  {/* Variant Name */}
-                   <label className="form-label required">Variant Name</label>
+                  <label className="form-label required">Variant Name</label>
                   <input
                     type="text"
                     className="form-control mb-2"
@@ -83,8 +87,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                     {...arrayHelpers.form.getFieldProps(`${name}[${index}].variant_name`)}
                   />
 
-                  {/* Quantity */}
-                    <label className="form-label required">Quantity</label>
+                  <label className="form-label required">Quantity</label>
                   <input
                     type="number"
                     className="form-control mb-2"
@@ -92,8 +95,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                     {...arrayHelpers.form.getFieldProps(`${name}[${index}].quantity_on_hand`)}
                   />
 
-                  {/* Reorder Point */}
-                    <label className="form-label required">Reorder Point</label>
+                  <label className="form-label required">Reorder Point</label>
                   <input
                     type="number"
                     className="form-control mb-2"
@@ -101,8 +103,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                     {...arrayHelpers.form.getFieldProps(`${name}[${index}].reorder_point`)}
                   />
 
-                  {/* Cost Price */}
-                  <label className="form-label required">Cost Price </label>
+                  <label className="form-label required">Cost Price</label>
                   <input
                     type="number"
                     className="form-control mb-2"
@@ -110,8 +111,7 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                     {...arrayHelpers.form.getFieldProps(`${name}[${index}].cost_price`)}
                   />
 
-                  {/* Selling Price */}
-                   <label className="form-label required">Selling Price </label>
+                  <label className="form-label required">Selling Price</label>
                   <input
                     type="number"
                     className="form-control mb-2"
@@ -119,13 +119,12 @@ export const VariantsFieldArray = ({ name, initialPreviews = [] }: VariantsField
                     {...arrayHelpers.form.getFieldProps(`${name}[${index}].selling_price`)}
                   />
 
-                  {/* Remove Button */}
                   <button
                     type="button"
                     className="btn btn-sm btn-danger mt-2"
                     onClick={() => {
                       arrayHelpers.remove(index)
-                      setVariantPreviews((prev) => prev.filter((_, i) => i !== index))
+                      setVariantPreviews(prev => prev.filter((_, i) => i !== index))
                     }}
                   >
                     Remove Variant

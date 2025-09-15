@@ -64,7 +64,7 @@ const ProductList: FC = () => {
       visible: true,
       title: 'View Product Details',
       body: <ViewProductDetailsModal data={res} />,
-      className:'modal-md',
+      className:'modal-lg',
       alignment:'centered'
     })
   }

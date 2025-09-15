@@ -81,7 +81,7 @@ export function AsideMenuMain() {
       }
 
       {
-         (permissions.includes("view_addons_list")) && (
+         (permissions.includes("view_product_addons_list")) && (
               <AsideMenuItem
                 to='/product/addon/list'
                 title='Addons'

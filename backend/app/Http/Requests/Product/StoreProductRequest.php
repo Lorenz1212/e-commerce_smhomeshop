@@ -46,7 +46,7 @@ class StoreProductRequest extends FormRequest
             'addons.*' => 'array',
             'addons.*.id' => 'required|string',
             'addons.*.base_price' => 'required|numeric|min:0',
-            'addons.*.custom_price' => 'nullable|numeric|min:0',
+            'addons.*.custom_price' => 'required|string|min:0',
             
             'variants' => 'nullable|array',
             'variants.*' => 'array',

@@ -9,7 +9,6 @@ use App\Models\ProductAddon;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\ProductVariantImage;
-use Illuminate\Support\Facades\Storage;
 
 class ProductService
 {
@@ -53,7 +52,10 @@ class ProductService
         $response = Product::with([
             'images',
             'product_addons.addon',
-            'variants'
+            'variants',
+            'supplier',
+            'category',
+            'brand'
         ])->findOrFail($product_id);
 
         $primaryImage = $response->images->firstWhere('is_primary', 1);
@@ -68,6 +70,11 @@ class ProductService
         $response->product_addons->transform(function ($productAddon) {
             $productAddon->base_price = $productAddon->addon->base_price ?? null;
             return $productAddon;
+        });
+
+        $response->variants->transform(function ($productVariant) {
+            $productVariant->image_cover = $productVariant->primaryImage?->image_cover??null;
+            return $productVariant;
         });
 
         return $response;
@@ -95,15 +102,17 @@ class ProductService
             'movement_type'=>'IN'
         ]);
 
-        foreach ($data['filename'] ?? [] as $index => $filename) {
-            $isPrimary = ($index == $data['primary_index']);
-            ProductImage::create([
-                'product_id' => $product->id,
-                'filename' => $filename,
-                'is_primary' => $isPrimary
-            ]);
+        if(!empty($data['filename'])){
+            foreach ($data['filename'] ?? [] as $index => $filename) {
+                $isPrimary = ($index == $data['primary_index']);
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'filename' => $filename,
+                    'is_primary' => $isPrimary
+                ]);
+            }
         }
-
+     
         if(!empty($data['variants'])){
             foreach ($data['variants'] as $variant) {
 
@@ -154,38 +163,67 @@ class ProductService
 
         if (!empty($data['filename'])) {
 
-            foreach ($product->images as $image) {
-                $path = 'images/products/' . $image->filename;
+            $existingImages = $product->images->pluck('id', 'filename')->toArray();
 
-                if (Storage::disk('public')->exists($path)) {
-                    Storage::disk('public')->delete($path);
+            foreach ($data['filename'] as $index => $filename) {
+                $isPrimary = $data['primary_index'] == $index ? 1 : 0;
+
+                if (isset($existingImages[$filename])) {
+                    ProductImage::where('id', $existingImages[$filename])
+                        ->update(['is_primary' => $isPrimary]);
+                } else {
+
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'filename'   => $filename,
+                        'is_primary' => $isPrimary,
+                    ]);
                 }
-
-                $image->delete();
             }
 
-            foreach ($data['filename'] as $filename) {
-                ProductImage::create([
-                    'product_id' => $product->id,
-                    'filename' => $filename,
-                ]);
-            }
+            $keepFilenames = $data['filename'];
+            $product->images()
+                ->whereNotIn('filename', $keepFilenames)
+                ->delete();
         }else{
-
+            if (isset($data['primary_index'])) {
+                foreach ($product->images as $index => $image) {
+                    $image->update([
+                        'is_primary' => $index == $data['primary_index'] ? 1 : 0,
+                    ]);
+                }
+            }
         }
 
-        if (!empty($data['addons'])) {
+       if (!empty($data['addons'])) {
 
-            $product->product_addons()->delete();
+            $addonIds = collect($data['addons'])->pluck('id')->toArray();
 
             foreach ($data['addons'] as $row) {
-                ProductAddon::create([
-                    'product_id' => $product->id,
-                    'addon_id' => $row['id'],
-                    'custom_price'=>(!empty($row['custom_price']))?$row['custom_price']:$row['base_price']
-                ]);
+                $productAddon = ProductAddon::where('product_id', $product->id)
+                    ->where('addon_id', $row['id'])
+                    ->first();
+
+                if ($productAddon) {
+                    // Update existing
+                    $productAddon->update([
+                        'custom_price' => !empty($row['custom_price']) ? $row['custom_price'] : $row['base_price'],
+                    ]);
+                } else {
+                    // Create new
+                    ProductAddon::create([
+                        'product_id'   => $product->id,
+                        'addon_id'     => $row['id'],
+                        'custom_price' => !empty($row['custom_price']) ? $row['custom_price'] : $row['base_price'],
+                    ]);
+                }
             }
-        }else{
+
+            // Delete removed addons
+            $product->product_addons()
+                ->whereNotIn('addon_id', $addonIds)
+                ->delete();
+        } else {
             $product->product_addons()->delete();
         }
 

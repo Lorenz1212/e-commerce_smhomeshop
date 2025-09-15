@@ -5,7 +5,6 @@ import { ActionsCell } from '@@@/datatable/ActionsCell'
 import { ProductModel } from '../../core/_model'
 import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
 import { StatusCell } from '@@@/datatable/StatusCell'
-import { useTableHook } from '@@@@@@/hooks/useTableHook'
 import { toAbsoluteUrl } from '@/helpers'
 
 type Props = {
@@ -43,7 +42,7 @@ export const ProductArchivedTable: React.FC<Props> = ({
       key: 'image_cover',
       render: (item:any) => (
         <ImageTitleCell
-            image={item.primary_image?.image_cover??toAbsoluteUrl('media/products/default.jpg')}
+            image={item.primary_image?.image_cover??toAbsoluteUrl('media/default.jpg')}
             mainTitle={item.name}
             subTitle={item.sku}
         />
