@@ -4,8 +4,11 @@ namespace App\Http\Requests\Product;
 
 use App\Helpers\UploadImageHelper;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use App\Traits\Encryption;
 use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class UpdateProductRequest extends FormRequest
 {
@@ -31,7 +34,7 @@ class UpdateProductRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules(Request $request): array
     {
         $product_id = $this->decrypt_string($this->route('product_id'));
 
@@ -50,25 +53,49 @@ class UpdateProductRequest extends FormRequest
             'addons' => 'nullable|array',
             'addons.*' => 'array',
             'addons.*.id' => 'required|string',
-            'addons.*.base_price' => 'required|numeric|min:0',
+            'addons.*.base_price' => 'nullable|numeric|min:0',
             'addons.*.custom_price' => 'required|string|min:0',
 
             'variants' => 'nullable|array',
             'variants.*' => 'array',
             'variants.*.id' => 'required|string',
-            'variants.*.sku' => 'required|string|max:100',
+            'variants.*.sku' => [
+            'required',
+            'string',
+            'max:100',
+                function ($attribute, $value, $fail) use ($request) {
+                    preg_match('/variants\.(\d+)\.sku/', $attribute, $matches);
+                    $index = $matches[1] ?? null;
+                    $id = $request->input("variants.$index.id");
+                    $id = $this->decrypt_string($id);
+                    $rule = Rule::unique('product_variants', 'sku');
+                    if (!empty($id)) {
+                        $rule->ignore($id);
+                    }
+                    $validator = validator(
+                        ['sku' => $value],
+                        ['sku' => [$rule]]
+                    );
+
+                    if ($validator->fails()) {
+                        $fail('The SKU has already been taken.');
+                    }
+                }
+            ],
             'variants.*.variant_name' => 'required|string|max:100',
             'variants.*.quantity_on_hand' => 'required|numeric|min:1',
-            'variants.*.reorder_point' => 'required|numeric|min:0',
+            'variants.*.reorder_point' => 'nullable|numeric|min:0',
             'variants.*.cost_price' => 'nullable|numeric|min:0',
             'variants.*.selling_price' => 'nullable|numeric|min:0',
-            'variants.*.image' => 'required|file|mimes:jpg,png,jpeg|max:2048',
+            'variants.*.image' => 'nullable|file|mimes:jpg,png,jpeg|max:2048',
             'variants.*.filename' => 'nullable|string',
 
             'images' => 'nullable|array',
             'images.*' => 'nullable|file|mimes:jpg,png,jpeg|max:2048',
             'filename' => 'nullable|array',
             'filename.*' => 'nullable|string',
+
+            'primary_index' => 'nullable|integer|min:0',
         ];
     }
 
@@ -88,6 +115,32 @@ class UpdateProductRequest extends FormRequest
                 $this->merge(['addons' => $addons]);
             }
         }
-     
+
+       if ($this->has('variants')) {
+            $variants = $this->input('variants');
+
+            foreach ($variants as $key => $fields) {
+                $filename = $this->UploadImageHelper->processFileUpload(  
+                     $this,
+                    'images/variants',
+                    "variants.$key.image",
+                    "variants.$key.filename"
+                );
+                $variants[$key]['filename'] = $filename;
+            }
+        
+            // decrypt IDs if needed
+            foreach ($variants as $key => $variant) {
+                if (!empty($variant['id'])) {
+                    try {
+                        $variants[$key]['id'] = $this->decrypt_string($variant['id']);
+                    } catch (\Exception $e) {
+                        $variants[$key]['id'] = null;
+                    }
+                }
+            }
+
+            $this->merge(['variants' => $variants]);
+        }
     }
 }

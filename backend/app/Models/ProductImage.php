@@ -18,7 +18,10 @@ class ProductImage extends BaseModel
     protected $hidden = [
         'id',
         'product_id',
-        'filename'
+        'filename',
+        'created_at',
+        'deleted_at',
+        'updated_at',
     ];
 
      protected $appends = [

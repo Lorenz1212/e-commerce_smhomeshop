@@ -19,7 +19,6 @@ class ProductVariantImage extends BaseModel
         'id_encrypted',
         'row_number',
         'created_at_format',
-        'stock_status',
         'image_cover'
     ];
 
@@ -27,6 +26,15 @@ class ProductVariantImage extends BaseModel
         'attributes' => 'array', // JSON cast to array
         'is_active' => 'boolean',
     ];
+
+     protected $hidden = [
+        'id',
+        'variant_id',
+        'created_at',
+        'deleted_at',
+        'updated_at',
+    ];
+
 
     protected function rowNumber(): Attribute
     {
@@ -61,7 +69,7 @@ class ProductVariantImage extends BaseModel
     {
         return Attribute::make(
             get: function () {
-                $path = 'images/products/'.$this->filename;
+                $path = 'images/variants/'.$this->filename;
                 if ($this->filename && Storage::disk('public')->exists($path)) {
                     // Get the full URL to the image file
                     return url(Storage::url('images/variants/'.$this->filename));

@@ -1,10 +1,10 @@
 // components/Table/SupplierTable.tsx
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ActionsCell } from '@@@/datatable/ActionsCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { WalkinOrderListModel } from '../../core/_model'
-import { TitleBlockCell } from '@@@/datatable/TitleBlockCell'
-import { StatusCell } from '@@@/datatable/StatusCell'
+import { TitleBlockCell } from '@@@/datatable/components/TitleBlockCell'
+import { StatusCell } from '@@@/datatable/components/StatusCell'
 import { CurrencyText } from '@@@/inputmasks/CurrencyText'
 
 type Props = {

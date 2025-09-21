@@ -1,6 +1,6 @@
 import { toAbsoluteUrl } from '@/helpers'
 import { CurrencyText } from '@@@/inputmasks/CurrencyText'
-import { ImageViewer } from '@@@/uploader/ImageViewer'
+import { ImageViewer } from '@@@/fileviewers/ImageViewer'
 import { FC, useState } from 'react'
 
 interface ProductModalProps {
@@ -158,7 +158,7 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
               {data.product_addons.map((item: any, idx: number) => (
                 <div key={idx}>
                   <div
-                    className="list-group-item d-flex justify-content-between align-items-center border-0"
+                    className="list-group-item d-flex justify-content-between align-items-center  border-success"
                   >
                     <div>
                       <div className="fw-semibold text-dark">{item.addon?.name || `Addon #${idx + 1}`}</div>
@@ -195,7 +195,7 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
             <div className="row g-3">
               {data.variants.map((variant: any, idx: number) => (
                 <div key={idx} className="col-md-6">
-                  <div className="card shadow-sm h-100 border-0">
+                  <div className="card shadow-sm h-100 border-success">
                     <div className="card-body d-flex justify-content-between align-items-start">
                       {/* Left side - Info */}
                       <div className="flex-grow-1 pe-3">

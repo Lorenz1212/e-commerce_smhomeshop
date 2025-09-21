@@ -53,13 +53,11 @@ class StoreProductRequest extends FormRequest
             'variants.*.sku' => 'required|string|max:100',
             'variants.*.variant_name' => 'required|string|max:100',
             'variants.*.quantity_on_hand' => 'required|numeric|min:1',
-            'variants.*.reorder_point' => 'required|numeric|min:0',
+            'variants.*.reorder_point' => 'nullable|numeric|min:0',
             'variants.*.cost_price' => 'nullable|numeric|min:0',
             'variants.*.selling_price' => 'nullable|numeric|min:0',
-            'variants.*.image' => 'nullable|array',
-            'variants.*.image.*' => 'file|mimes:jpg,png,jpeg|max:2048',
-            'variants.*.filename' => 'nullable|array',
-            'variants.*.filename.*' => 'nullable|string',
+            'variants.*.image' => 'required|file|mimes:jpg,png,jpeg|max:2048',
+            'variants.*.filename' => 'nullable|string',
 
             'images' => 'required|array',
             'images.*' => 'required|file|mimes:jpg,png,jpeg|max:2048',
@@ -75,14 +73,19 @@ class StoreProductRequest extends FormRequest
         $this->UploadImageHelper->processFileUpload($this,'images/products','images','filename');
 
         if ($this->has('variants')) {
+            $variants = $this->input('variants');
+            
             foreach ($this->variants as $key => $variant) {
-                $this->UploadImageHelper->processFileUpload(
+                $filename = $this->UploadImageHelper->processFileUpload(
                     $this,
                     'images/variants',
                     "variants.$key.image",
                     "variants.$key.filename"
                 );
+
+                $variants[$key]['filename'] = $filename;
             }
+            $this->merge(['variants' => $variants]);
         }
 
         if ($this->has('addons')) {

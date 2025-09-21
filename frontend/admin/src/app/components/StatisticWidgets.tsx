@@ -4,7 +4,6 @@ import api from '@@@@/api'
 import React, { useEffect, useState } from 'react'
 import { Smile, Frown, Meh } from "lucide-react"
 
-
 type Props = {
   className: string
   color: string

@@ -15,14 +15,20 @@ class Product extends BaseModel
         'sku', 'name', 'description','category_id', 'brand_id', 'quantity_on_hand', 'reorder_point', 'supplier_id', 'cost_price', 'selling_price'
     ];
 
-     protected $appends = [
+    protected $appends = [
         'id_encrypted',
         'row_number',
         'created_at_format',
         'stock_status'
     ];
-    
 
+    protected $hidden = [
+        'id',
+        'created_at',
+        'deleted_at',
+        'updated_at',
+    ];
+    
     protected function rowNumber(): Attribute
     {
         return Attribute::make(
@@ -42,7 +48,8 @@ class Product extends BaseModel
     {
         return Attribute::make(
             get: function () {
-                return $this->created_at ? Carbon::parse($this->created_at)->format('F d, Y h:i A') : NULL;
+                // return $this->created_at ? Carbon::parse($this->created_at)->format('F d, Y h:i A') : NULL;
+                return $this->created_at ? Carbon::parse($this->created_at)->format('F d, Y') : NULL;
             }
         );
     }

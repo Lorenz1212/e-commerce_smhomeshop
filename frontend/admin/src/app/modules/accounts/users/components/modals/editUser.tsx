@@ -2,7 +2,7 @@ import React, { FC, useState,useEffect } from 'react'
 import * as Yup from 'yup'
 import { Formik, Form } from 'formik'
 import clsx from 'clsx'
-import { ImageUploader } from '@@@/uploader/ImageUploader'
+import { MulitpleImageUploader } from '@@@/uploader/MulitpleImageUploader'
 import { PhoneFormat } from '@@@/inputmasks/phoneNumber'
 import { useUser } from '../../core/_requests'
 import { RoleSelect } from '@@@/selects/RoleSelect'
@@ -87,7 +87,7 @@ const EditUserModal: FC<UserModalProps> = ({
               <div className="col-md-12">
                 {/* Profile Image */}
                 <div className="mb-3">
-                  <ImageUploader
+                  <MulitpleImageUploader
                     name="images"
                     formik={formik}
                     previews={imagePreviews}

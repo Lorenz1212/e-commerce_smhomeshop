@@ -1,8 +1,8 @@
 // components/Table/SupplierTable.tsx
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
-import { StatusCell } from '@@@/datatable/StatusCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
+import { StatusCell } from '@@@/datatable/components/StatusCell'
 import { ProductModel } from '@@/products/core/_model'
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'

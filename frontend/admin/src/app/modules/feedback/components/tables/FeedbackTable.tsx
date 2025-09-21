@@ -1,10 +1,10 @@
 // components/Table/SupplierTable.tsx
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ActionsCell } from '@@@/datatable/ActionsCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { FeedbackModel } from '../../core/_model'
-import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
-import { StatusCell } from '@@@/datatable/StatusCell'
+import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
+import { StatusCell } from '@@@/datatable/components/StatusCell'
 import { KTIcon } from '@/helpers'
 
 type Props = {

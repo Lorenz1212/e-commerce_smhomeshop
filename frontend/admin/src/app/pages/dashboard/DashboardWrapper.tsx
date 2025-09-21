@@ -80,22 +80,22 @@ const DashboardPage = () => {
           </div>
           {/* end::Col  */}
           {/* begin::Col  */}
-          <div className='col-xxl-8'>
+          {/* <div className='col-xxl-8'>
             <ProductStocksTable
                 data={table.data}
                 loading={table.loading}
                 setRefreshTable={table.setRefreshTable}
               />
-          </div>
+          </div> */}
           {/* end::Col  */}
         {/* begin::Col  */}
-          <div className='col-xl-4'>
+          {/* <div className='col-xl-4'>
             <FeedbackMixed
               className='card-xl-stretch mb-5 mb-xl-8'
               chartColor='primary'
               chartHeight='225px'
             />
-          </div>
+          </div> */}
         {/* end::Col  */}
         </div>
         {/* end::Row  */}
@@ -103,9 +103,9 @@ const DashboardPage = () => {
         {/* begin::Row  */}
         <div className='row gy-5 g-xl-8'>
           {/* begin::Col  */}
-          <div className='col-xl-12'>
+          {/* <div className='col-xl-12'>
             <ForecastSalesChart/>
-          </div>
+          </div> */}
           {/* end::Col  */}
         </div>
         {/* end::Row  */}

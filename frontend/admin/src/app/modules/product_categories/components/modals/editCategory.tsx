@@ -3,7 +3,7 @@ import * as Yup from 'yup'
 import {useFormik} from 'formik'
 import clsx from 'clsx'
 import { useProductCategory } from '../../core/_request'
-import { ImageUploader } from '@@@/uploader/ImageUploader'
+import { MulitpleImageUploader } from '@@@/uploader/MulitpleImageUploader'
 import { Form } from 'react-bootstrap'
 
 
@@ -63,7 +63,7 @@ const EditCategoryModal: FC<Props> = ({
      <form noValidate onSubmit={formik.handleSubmit}>
       <div className='row'>
           <div className='col-md-12'>
-            <ImageUploader
+            <MulitpleImageUploader
               name="images"
               formik={formik}
               previews={imagePreviews}

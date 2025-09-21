@@ -29,6 +29,15 @@ class ProductVariant extends BaseModel
         'is_active' => 'boolean',
     ];
 
+     protected $hidden = [
+        'id',
+        'product_id',
+        'status',
+        'created_at',
+        'deleted_at',
+        'updated_at',
+    ];
+
     protected function rowNumber(): Attribute
     {
         return Attribute::make(
@@ -84,6 +93,11 @@ class ProductVariant extends BaseModel
 
     public function images()
     {
-        return $this->hasMany(ProductVariantImage::class);
+        return $this->hasMany(ProductVariantImage::class,'variant_id','id');
+    }
+
+    public function image()
+    {
+        return $this->hasOne(ProductVariantImage::class,'variant_id','id');
     }
 }

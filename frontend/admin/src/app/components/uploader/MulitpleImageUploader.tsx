@@ -1,10 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState } from 'react'
 import { FormikProps } from 'formik'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
 import clsx from 'clsx'
+import Swal from 'sweetalert2'
 
-interface ImageUploaderProps<T> {
+interface MulitpleImageUploaderProps<T> {
   name: keyof T
   formik: FormikProps<T>
   previews: string[]
@@ -12,10 +13,10 @@ interface ImageUploaderProps<T> {
   label?: string
   accept?: string
   maxFiles?: number
-  getPrimaryIndex?: number
+  getPrimaryIndex?: number,
 }
 
-export const ImageUploader = <T extends object>({
+export const MulitpleImageUploader = <T extends object>({
   name,
   formik,
   previews,
@@ -24,23 +25,30 @@ export const ImageUploader = <T extends object>({
   accept = 'image/*',
   maxFiles = 5,
   getPrimaryIndex = 0,
-}: ImageUploaderProps<T>) => {
+}: MulitpleImageUploaderProps<T>) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [progresses, setProgresses] = useState<number[]>([])
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [primaryIndex, setPrimaryIndex] = useState<number>(getPrimaryIndex)
 
-  const disallowedExtensions = ['.exe', '.php', '.js', '.sh', '.bat', '.html', '.htm', '.svg']
-  const hasDisallowedExtension = (file: File) =>
-    disallowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+  // ✅ Allowed MIME types (safe)
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png']
+
+  const isAllowedType = (file: File) => allowedTypes.includes(file.type)
 
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
     if (!files) return
 
     const selectedFiles = Array.from(files)
-    const validFiles = selectedFiles.filter(file => !hasDisallowedExtension(file))
-    if (validFiles.length < selectedFiles.length) alert('Some files were not allowed and ignored.')
+    const validFiles = selectedFiles.filter(isAllowedType)
+
+    if (validFiles.length < selectedFiles.length) {
+      Swal.fire({
+        icon:  'info',
+        title: 'Only JPG, JPEG, PNG files are allowed.',
+      })
+    }
 
     if (maxFiles === 1) {
       const newFile = validFiles[0]

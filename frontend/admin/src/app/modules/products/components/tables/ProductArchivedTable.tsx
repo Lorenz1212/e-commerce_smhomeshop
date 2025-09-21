@@ -1,11 +1,12 @@
 // components/Table/SupplierTable.tsx
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ActionsCell } from '@@@/datatable/ActionsCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { ProductModel } from '../../core/_model'
-import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
-import { StatusCell } from '@@@/datatable/StatusCell'
+import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
+import { StatusCell } from '@@@/datatable/components/StatusCell'
 import { toAbsoluteUrl } from '@/helpers'
+import { CurrencyText } from '@@@/inputmasks/CurrencyText'
 
 type Props = {
   data: ProductModel[]
@@ -42,23 +43,58 @@ export const ProductArchivedTable: React.FC<Props> = ({
       key: 'image_cover',
       render: (item:any) => (
         <ImageTitleCell
-            image={item.primary_image?.image_cover??toAbsoluteUrl('media/default.jpg')}
+            image={item.primary_image?.image_cover??toAbsoluteUrl('media/products/default.jpg')}
             mainTitle={item.name}
             subTitle={item.sku}
         />
       ),
     },
-    { title: 'QTY on hand', key: 'quantity_on_hand', sortable: true },
-    { title: 'Cost Price', key: 'cost_price', sortable: true },
-    { title: 'Selling Price', key: 'selling_price', sortable: true },
-    {
-      title: 'Stocks Status',
-      key: 'stock_status',
+    { title: 'QTY on hand', key: 'quantity_on_hand', sortable: true,
       render: (item:any) => (
-        <StatusCell
+        <>
+        <div className="d-flex flex-column align-items-start">
+          <span className='mb-2'>QTY: {item.quantity_on_hand}</span>
+          <StatusCell
             color={item.stock_status['color']}
             title={item.stock_status['title']}
-        />
+          />
+        </div>
+        </>
+      ),
+    },
+    { title: 'Price', key: 'cost_price', sortable: true,
+        render: (item:any) => (
+        <>
+          <div className="d-flex flex-column align-items-start">
+            <span className='mb-2'>Cost: { <CurrencyText value={item.cost_price || 0} />}</span>
+              <span className='mb-2'>Selling: { <CurrencyText value={item.selling_price || 0} />}</span>
+          </div>
+          </>
+        ),
+    },
+    {
+      title: 'Variants',
+      key: 'variants',
+      render: (item: any) => (
+        <div className="d-flex flex-column gap-1">
+          {item.variants && item.variants.length > 0 ? (
+            item.variants.map((variant: any, idx: number) => (
+              <div key={idx} className="border rounded p-2 bg-light">
+                <div className="fw-semibold small">
+                  SKU: <span className="text-primary">{variant.sku}</span>
+                </div>
+                <div className="small">
+                  Name: {variant.variant_name ?? '-'}
+                </div>
+                <div className="small">
+                  Qty: <span className="fw-bold">{variant.quantity_on_hand ?? 0}</span>
+                </div>
+              </div>
+            ))
+          ) : (
+            <span className="text-muted small">No variants</span>
+          )}
+        </div>
       ),
     },
     { title: 'Created At', key: 'created_at_format', sortable: true },

@@ -1,8 +1,8 @@
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ActionsCell } from '@@@/datatable/ActionsCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { UserListModel } from '../../core/_models'
-import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
+import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
 
 type Props = {

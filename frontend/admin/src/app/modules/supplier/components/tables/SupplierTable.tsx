@@ -1,6 +1,6 @@
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ActionsCell } from '@@@/datatable/ActionsCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { SupplierModel } from '../../core/_model'
 
 type Props = {

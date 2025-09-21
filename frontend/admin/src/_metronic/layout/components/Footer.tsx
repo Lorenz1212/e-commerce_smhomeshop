@@ -17,7 +17,7 @@ const Footer: FC = () => {
             target='_blank'
             className='text-muted text-hover-primary fw-bold me-2 fs-6'
           >
-            MilkTea Management System@2025
+            SM Home Shop Management System@2025
           </a>
         </div>
         {/* end::Copyright */}

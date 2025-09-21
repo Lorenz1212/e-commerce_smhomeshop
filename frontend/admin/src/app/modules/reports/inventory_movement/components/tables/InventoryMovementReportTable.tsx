@@ -1,8 +1,8 @@
 // components/Table/InventoryMovementReportTable.tsx
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
+import { DataTable, Column } from '@@@/datatable/DataTable'
 import { InventoryMovementReportModel } from '../../core/_model'
-import { StatusCell } from '@@@/datatable/StatusCell'
+import { StatusCell } from '@@@/datatable/components/StatusCell'
 
 type Props = {
   data: InventoryMovementReportModel[]

@@ -1,7 +1,7 @@
 import React from 'react'
-import { DataTable, Column } from '@@@/DataTable'
-import { ActionsCell } from '@@@/datatable/ActionsCell'
-import { ImageTitleCell } from '@@@/datatable/ImageTitleCell'
+import { DataTable, Column } from '@@@/datatable/DataTable'
+import { ActionsCell } from '@@@/datatable/components/ActionsCell'
+import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
 import { CustomerListModel } from '@@/customers/core/_model'
 

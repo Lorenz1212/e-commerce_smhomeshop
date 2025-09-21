@@ -18,7 +18,7 @@ export const ImageViewer: FC<ImageViewerProps> = ({ preview, index, allImages })
         alt={`Preview ${index}`}
         className="img-thumbnail preview-image"
         onClick={() => setLightboxIndex(index)}
-        style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, cursor: 'pointer' }}
+        style={{ width: 130, height: 130, objectFit: 'cover', borderRadius: 8, cursor: 'pointer' }}
       />
 
       {lightboxIndex !== null && (

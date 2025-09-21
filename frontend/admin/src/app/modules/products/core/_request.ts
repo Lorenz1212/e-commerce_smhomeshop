@@ -48,12 +48,16 @@ export const useProduct = () => {
           formData.append('images[]', file)
         })
 
+        if(typeof values.primary_index !== 'undefined'){
+          formData.append("primary_index", values.primary_index)
+        }
+
         values.addons.forEach((addon:any, index:any) => {
           formData.append(`addons[${index}][id]`, addon.id)
           formData.append(`addons[${index}][base_price]`, addon.base_price.toString())
           formData.append(`addons[${index}][custom_price]`, addon.custom_price.toString())
         })
-
+        
         values.variants.forEach((variant:any, index:any) => {
           formData.append(`variants[${index}][id]`, variant.id)
           formData.append(`variants[${index}][sku]`, variant.sku.toString())
@@ -62,15 +66,7 @@ export const useProduct = () => {
           formData.append(`variants[${index}][reorder_point]`, variant.reorder_point.toString())
           formData.append(`variants[${index}][cost_price]`, variant.cost_price.toString())
           formData.append(`variants[${index}][selling_price]`, variant.selling_price.toString())
-          // ✅ Handle multiple images correctly
-          if (variant.image && Array.isArray(variant.image)) {
-            variant.image.forEach((file: File) => {
-              formData.append(`variants[${index}][image][]`, file);
-            });
-          } else if (variant.image instanceof File) {
-            // ✅ If single file only
-            formData.append(`variants[${index}][image][]`, variant.image);
-          }
+          formData.append(`variants[${index}][image]`, variant.image);
         })
 
         const res = await apiMultipart.post(`/admin/product/${id}/update`, formData)
@@ -83,7 +79,6 @@ export const useProduct = () => {
         setRefreshTable?.(true);
 
       } catch (error: any) {
-        console.log(error);
         Swal.fire({
           icon: 'error',
           title: error?.response?.data?.message,
@@ -119,12 +114,13 @@ export const useProduct = () => {
 
       fields.forEach((field) => formData.append(field, values[field]))
 
-      // Append images
       values.images.forEach((file: File) => {
         formData.append('images[]', file)
       })
 
-      formData.append("primary_index", values.primary_index)
+      if(typeof values.primary_index !== 'undefined'){
+        formData.append("primary_index", values.primary_index)
+      }
 
       values.addons.forEach((addon:any, index:any) => {
         formData.append(`addons[${index}][id]`, addon.id)
@@ -139,16 +135,7 @@ export const useProduct = () => {
         formData.append(`variants[${index}][reorder_point]`, variant.reorder_point.toString());
         formData.append(`variants[${index}][cost_price]`, variant.cost_price.toString());
         formData.append(`variants[${index}][selling_price]`, variant.selling_price.toString());
-
-        // ✅ Handle multiple images correctly
-        if (variant.image && Array.isArray(variant.image)) {
-          variant.image.forEach((file: File) => {
-            formData.append(`variants[${index}][image][]`, file);
-          });
-        } else if (variant.image instanceof File) {
-          // ✅ If single file only
-          formData.append(`variants[${index}][image][]`, variant.image);
-        }
+        formData.append(`variants[${index}][image]`, variant.image);
       });
 
       const res = await apiMultipart.post('/admin/product/store',  formData )

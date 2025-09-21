@@ -10,9 +10,9 @@ import { ProductTable } from './tables/ProductTable'
 import { useProduct } from '../core/_request'
 import { CreateProductModal } from './modals/createProduct'
 import { EditProductModal } from './modals/editProduct'
-import { ViewProductDetailsModal } from './modals/viewProductDetails'
 import { ProductModel } from '../core/_model'
 import { ViewProductArchived } from './modals/ViewProductArchived'
+import { ViewProductDetailsModal } from './modals/ViewProductDetails'
 
 const ProductList: FC = () => {
 

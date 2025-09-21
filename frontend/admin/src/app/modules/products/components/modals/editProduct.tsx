@@ -5,9 +5,9 @@ import clsx from 'clsx'
 import { CategorySelect } from '@@@/selects/CategorySelect'
 import { SupplierSelect } from '@@@/selects/SupplierSelect'
 import { useProduct } from '@@/products/core/_request'
-import { ImageUploader } from '@@@/uploader/ImageUploader'
-import { AddonsFieldArray } from '@@@/AddonsFieldArray'
-import { VariantsFieldArray } from '@@@/VariantFieldArray'
+import { MulitpleImageUploader } from '@@@/uploader/MulitpleImageUploader'
+import { AddonsFieldArray } from '@@@/FieldArrays/AddonsFieldArray'
+import { VariantsFieldArray } from '@@@/FieldArrays/VariantFieldArray'
 import { BrandSelect } from '@@@/selects/BrandSelect'
 
 interface EditProductModalProps {
@@ -42,70 +42,147 @@ const StepSchemas = [
     selling_price: Yup.number().required('Selling price is required').min(0),
   }),
   Yup.object().shape({
-    images: Yup.mixed().test('images', 'At least one image required', function (value) {
-      const previews = (this.options.context as any)?.imagePreviews
-      return (
-        (Array.isArray(value) && value.length > 0) ||
-        (previews && previews.length > 0)
-      )
-    }),
+     images: Yup.array()
+       .of(
+         Yup.mixed<File>()
+           .test('fileType', 'Only JPG, JPEG, PNG files are allowed', (value) => {
+             if (!value) return true; // allow empty before required check
+             if (!(value instanceof File)) return false;
+             const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+             return allowedTypes.includes(value.type);
+           })
+           .test('fileSize', 'File size is too large (max 5MB)', (value) => {
+             if (!value) return true;
+             if (!(value instanceof File)) return false;
+             return value.size <= 5 * 1024 * 1024; // 5MB
+           })
+       )
+       .test('images', 'At least one image required', function (value) {
+         const previews = (this.options.context as any)?.imagePreviews;
+         return (
+           (Array.isArray(value) && value.length > 0) ||
+           (previews && previews.length > 0)
+         );
+       }),
   }),
   Yup.object().shape({
-  addons: Yup.array()
-    .min(1, 'At least one addon is required')
-    .of(
-      Yup.object().shape({
-        id: Yup.number().required('Addon is required'),
+    addons: Yup.array()
+      .min(0, 'At least one addon is required')
+      .of(
+        Yup.object().shape({
+          id: Yup.string().required('Addon is required'),
 
-        is_freebies: Yup.string().oneOf(['Y', 'N']).required(),
+          is_freebies: Yup.string()
+          .oneOf(['Y', 'N'], 'Must be Y or N')
+          .required('is_freebies is required'),
 
-        base_price: Yup.number()
-          .transform((val, orig) => (orig === '' ? null : val)) // handle empty string
-          .min(0, 'Cannot be negative')
-          .when('is_freebies', {
-            is: 'Y',
-            then: (schema) => schema.notRequired().nullable(),
-            otherwise: (schema) => schema.required('Base price is required'),
-          }),
+          base_price: Yup.number()
+            .transform((val, orig) => (orig === '' ? null : val))
+            .min(0, 'Base price cannot be negative')
+            .when('is_freebies', {
+              is: 'Y',
+              then: (schema) => schema.notRequired().nullable(),
+              otherwise: (schema) => schema.required('Base price is required'),
+            }),
 
-        custom_price: Yup.number()
-          .transform((val, orig) => (orig === '' ? null : val))
-          .min(0, 'Cannot be negative')
-          .when('is_freebies', {
-            is: 'Y',
-            then: (schema) =>
-              schema.test(
-                'must-be-zero-if-freebie',
-                'Custom price must be 0 for freebies',
-                (value) =>
-                  value === 0 ||
-                  value === null ||
-                  value === undefined
-              ),
-            otherwise: (schema) =>
-              schema.test(
-                'custom-vs-base',
-                'Custom price cannot be less than base price',
-                function (value) {
-                  const { base_price } = this.parent
-                  if (value === undefined || value === null) return true
-                  return value >= base_price
-                }
-              ),
-          }),
-      })
-    ),
+          custom_price: Yup.number()
+            .transform((val, orig) => (orig === '' ? null : val)) 
+            .required('Custom price is required') 
+            .min(0, 'Custom price cannot be negative')
+            .when('is_freebies', {
+              is: 'Y',
+              then: (schema) =>
+                schema.test(
+                  'must-be-zero-if-freebie',
+                  'Custom price must be 0 for freebies',
+                  (value) =>
+                    value === 0 || value === null || value === undefined
+                ),
+              otherwise: (schema) =>
+                schema.test(
+                  'custom-vs-base',
+                  'Custom price cannot be less than base price',
+                  function (value) {
+                    const { base_price } = this.parent;
+                    if (value === undefined || value === null) return true;
+                    return value >= base_price;
+                  }
+                ),
+            }),
+        })
+      ),
   }),
   Yup.object().shape({
     variants: Yup.array().of(
       Yup.object().shape({
         sku: Yup.string().required('Variant SKU is required'),
         variant_name: Yup.string().required('Variant name is required'),
-        quantity_on_hand: Yup.number().required().min(0),
-        reorder_point: Yup.number().nullable(),
-        cost_price: Yup.number().nullable(),
-        selling_price: Yup.number().nullable(),
-        image: Yup.mixed().required('Variant image is required'),
+        quantity_on_hand: Yup.number().required('Quantity on hand is required').min(0),
+
+        reorder_point: Yup.number()
+          .transform((val, orig) => (orig === '' ? null : val))
+          .nullable(),
+
+        cost_price: Yup.number()
+          .transform((val, orig) => (orig === '' ? null : val))
+          .nullable(),
+
+        selling_price: Yup.number()
+          .transform((val, orig) => (orig === '' ? null : val))
+          .nullable(),
+        image_preview: Yup.string(),
+        image: Yup.mixed<File>()
+          .nullable()
+          .test('required', 'Variant image is required', function (value) {
+
+            const ctx = this as Yup.TestContext
+            const parent = (ctx.parent ?? {}) as { image_preview?: string }
+
+            if (
+              parent.image_preview &&
+              typeof parent.image_preview === 'string' &&
+              parent.image_preview.trim() !== ''
+            ) {
+              return true
+            }
+
+            if (!value) return false
+            if (Array.isArray(value)) {
+              if (value.length === 0) return false
+              return value.some(v => typeof v === 'string' || v instanceof File)
+            }
+            if (typeof value === 'string') return true
+            if (value instanceof File) return true
+            return false
+          })
+          .test('fileType', 'Only JPG, JPEG, PNG files are allowed', (value) => {
+            if (!value) return true
+            if (Array.isArray(value)) {
+              return value.every(v => 
+                typeof v === 'string' || 
+                (v instanceof File && ['image/jpeg', 'image/jpg', 'image/png'].includes(v.type))
+              )
+            }
+            if (typeof value === 'string') return true
+            if (value instanceof File) {
+              return ['image/jpeg', 'image/jpg', 'image/png'].includes(value.type)
+            }
+            return false
+          })
+          .test('fileSize', 'File size is too large (max 5MB)', (value) => {
+            if (!value) return true
+            if (Array.isArray(value)) {
+              return value.every(v => 
+                typeof v === 'string' || 
+                (v instanceof File && v.size <= 5 * 1024 * 1024)
+              )
+            }
+            if (typeof value === 'string') return true
+            if (value instanceof File) {
+              return value.size <= 5 * 1024 * 1024
+            }
+            return true
+          }),
       })
     ),
   }),
@@ -122,7 +199,7 @@ const EditProductModal: FC<EditProductModalProps> = ({
     data?.images?.map((img: any) => img.image_cover) || []
   )
 
-  const { updateProduct } = useProduct()
+  const controller = useProduct()
 
   const nextStep = async (formikValues: any, validateForm: any) => {
     const errors = await validateForm()
@@ -156,21 +233,22 @@ const EditProductModal: FC<EditProductModalProps> = ({
           })) || [],
         variants:
           data.variants?.map((variant: any) => ({
-            id: variant.variant_id,
+            id: variant.id_encrypted,
             sku: variant.sku ?? '',
             variant_name: variant.variant_name ?? '',
             quantity_on_hand: variant.quantity_on_hand ?? '',
             reorder_point: variant.reorder_point ?? '',
             cost_price: variant.cost_price ?? '',
             selling_price: variant.selling_price ?? '',
-            image: variant.image_cover??null,
+            image:'',
+            image_preview:variant.image_cover??null
           })) || [],
       }}
       validationSchema={Yup.object()}
       validateOnChange={true}
       validateOnBlur={true}
       onSubmit={async (values, { resetForm }) => {
-        await updateProduct(values, productID, setRefreshTable)
+        await controller.updateProduct(values, productID, setRefreshTable)
         onSubmit?.(values)
       }}
       context={{ imagePreviews }}
@@ -336,7 +414,7 @@ const EditProductModal: FC<EditProductModalProps> = ({
           )}
 
           {step === 3 && (
-            <ImageUploader
+            <MulitpleImageUploader
               name="images"
               formik={formik}
               previews={imagePreviews}
@@ -347,11 +425,26 @@ const EditProductModal: FC<EditProductModalProps> = ({
             />
           )}
 
-          {step === 4 && <AddonsFieldArray name="addons" />}
+          {step === 4 && 
+          <AddonsFieldArray 
+              name="addons" 
+              errors={formik.errors}
+              touched={formik.touched}
+              onBlur={(e) => {formik.handleBlur(e)}}
+              onChange={(e) => {formik.handleChange(e)}}
+              setFieldValue={formik.setFieldValue}
+              setFieldTouched={formik.setFieldTouched}
+          />}
 
           {step === 5 && (
             <VariantsFieldArray
               name="variants"
+              errors={formik.errors}
+              touched={formik.touched}
+              onBlur={(e) => {formik.handleBlur(e)}}
+              onChange={(e) => {formik.handleChange(e)}}
+              setFieldValue={formik.setFieldValue}
+              setFieldTouched={formik.setFieldTouched}
               initialPreviews={data.variants?.map((v: any) => [v.image]) || []}
             />
           )}
@@ -406,6 +499,7 @@ const EditProductModal: FC<EditProductModalProps> = ({
                     err.inner.forEach((e: any) => {
                       errors[e.path] = e.message
                     })
+                    console.log(errors)
                     formik.setErrors(errors)
                   }
                 }}

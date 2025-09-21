@@ -50,10 +50,10 @@ class UploadImageHelper extends Controller{
         }
     }
 
-   public function processFileUpload($request, $uploadPath, $fileInputName, $targetField, $imageResize = false)
+   public function  processFileUpload($request, $uploadPath, $fileInputName, $targetField, $imageResize = false)
    {
         $uploadedFiles = $request->file($fileInputName);
-
+     
         if (!$uploadedFiles) {
             return;
         }
@@ -78,26 +78,22 @@ class UploadImageHelper extends Controller{
                 ? $this->uploadImageAndResize($uploadedFiles, $uploadPath)
                 : $this->uploadImage($uploadedFiles, $uploadPath);
 
-            $request->merge([$targetField => [$filename]]);
-            return;
+            return $filename;
         }
-
+           
         // ✅ Case 3: Nested uploads (e.g. variants.*.image)
         if (is_array($uploadedFiles)) {
-            $variants = $request->input('variants', []);
-
+            $filename = [];
             foreach ($uploadedFiles as $index => $file) {
                 if ($file instanceof \Illuminate\Http\UploadedFile) {
-                    $filename = $imageResize
+                    $filename[] = $imageResize
                         ? $this->uploadImageAndResize($file, $uploadPath)
                         : $this->uploadImage($file, $uploadPath);
 
-                    // Inject filename into the correct variant
-                    $variants[$index][$targetField] = $filename;
                 }
             }
 
-            $request->merge(['variants' => $variants]);
+            return $filename;
         }
     }
 
