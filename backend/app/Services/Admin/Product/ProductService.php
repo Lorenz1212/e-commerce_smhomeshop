@@ -16,15 +16,14 @@ class ProductService
 {
     public function getProductList($request)
     {
-        $data = Product::with(['category','primaryImage','variants']);
+        $data = Product::with(['primaryImage','variants']);
 
-        $normalFields = ['name', 'category.name','cost_price', 'status', 'selling_price', 'quantity_on_hand', 'reorder_point','created_at']; 
+        $normalFields = ['name', 'cost_price', 'status', 'selling_price', 'quantity_on_hand', 'reorder_point','created_at']; 
         
         $sortableColumns = [
             'id'            => 'id',
             'created_at'    => 'created_at',
             'name'          => 'name',
-            'category_name' => 'category.name',
             'quantity_on_hand' => 'quantity_on_hand',
         ];
 
@@ -33,15 +32,14 @@ class ProductService
 
     public function getArchivedList($request)
     {
-        $data = Product::onlyTrashed()->with(['category','primaryImage']);
+        $data = Product::onlyTrashed()->with(['primaryImage','variants']);
 
-        $normalFields = ['name', 'category.name','cost_price', 'status', 'selling_price', 'quantity_on_hand', 'reorder_point','created_at']; 
+        $normalFields = ['name','cost_price', 'status', 'selling_price', 'quantity_on_hand', 'reorder_point','created_at']; 
         
         $sortableColumns = [
             'id'            => 'id',
             'created_at'    => 'created_at',
             'name'          => 'name',
-            'category_name' => 'category.name',
             'quantity_on_hand' => 'quantity_on_hand',
             
         ];
