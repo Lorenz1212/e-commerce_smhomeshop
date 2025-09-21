@@ -49,17 +49,16 @@ class AdminLoginController extends Controller
                 throw ValidationException::withMessages([_lang_message('invalid_token')]);
             }
 
-
-             $mainRole = $user->roles->pluck('name')->first();
+            $mainRole = $user->roles->pluck('name')->first();
              
-             $modules = ['core','cashier'];
+            $modules = ['core','cashier'];
 
-             if($mainRole !== 'core'){
-                $modules = $user->roles->pluck('name')->filter(fn($r) => in_array($r, ['cashier', 'core']))->values()->all();
-                $mainRole = $user->roles->whereNotIn('name', ['core', 'cashier'])->pluck('name')->first();
-             }
+            if($mainRole !== 'core'){
+            $modules = $user->roles->pluck('name')->filter(fn($r) => in_array($r, ['cashier', 'core']))->values()->all();
+            $mainRole = $user->roles->whereNotIn('name', ['core', 'cashier'])->pluck('name')->first();
+            }
 
-             $permissions = $user->getAllPermissions()->pluck('name');
+            $permissions = $user->getAllPermissions()->pluck('name');
 
             return $this->returnData([
                 'user' => [
