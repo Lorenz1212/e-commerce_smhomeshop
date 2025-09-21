@@ -60,7 +60,6 @@ Route::prefix('v1')->group(function () {
          });
     });
 
-
     Route::middleware(['auth:core', 'auth:cashier','throttle:100,1'])->group(function () {
          Route::middleware('throttle:60,1')->group(function () {
             Route::get('/supplier', [DataFetcher::class, 'getSupplier']);
@@ -71,6 +70,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/store', [DataFetcher::class, 'getStores']);
             Route::get('/addons', [DataFetcher::class, 'getAddons']);
             Route::get('/brands', [DataFetcher::class, 'getProductBrand']);
+            Route::get('/definers', [DataFetcher::class, 'getAllDefiners']);
          });
     });
 });

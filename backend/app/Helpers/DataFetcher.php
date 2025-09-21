@@ -13,7 +13,9 @@ use App\Models\ProductCategory;
 use App\Models\SentimentModel;
 use App\Models\Store;
 use App\Models\Supplier;
+use App\Models\SystemDefinition;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Spatie\Permission\Models\Role;
 
 class DataFetcher extends Controller {
@@ -217,5 +219,22 @@ class DataFetcher extends Controller {
         } catch (\Throwable $e) {
             return ExceptionHandler::handle($e);
         }
+    }
+
+    public function getAllDefiners()
+    {
+         try {
+            
+            $definers = Cache::remember('all_definers', 3600, function () {
+                return SystemDefinition::where('is_active', 'Y')
+                    ->get(['name_code', 'value', 'description'])
+                    ->keyBy('name_code');
+            });
+
+            return response()->json($definers, 200);
+        } catch (\Throwable $e) {
+            return ExceptionHandler::handle($e);
+        }
+      
     }
 }
