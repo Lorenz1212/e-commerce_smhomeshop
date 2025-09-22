@@ -37,7 +37,6 @@ export const RoleTable: React.FC<Props> = ({
 
   const permissions = currentUser?.permissions
 
-
   const columns: Column<RoleModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     { title: 'Name',key: 'name', sortable: true },

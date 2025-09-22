@@ -146,8 +146,7 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
               </div>
             </div>
           )
-        )}
-
+      )}
 
       {step === 4 && (
         <div className="col-md-12 mb-3">
@@ -187,7 +186,7 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
           </div>
       )}
 
-     {step === 5 && (
+      {step === 5 && (
         <div className="col-md-12 mb-3">
           <h6 className="fw-bold mb-3">Variants</h6>
 
