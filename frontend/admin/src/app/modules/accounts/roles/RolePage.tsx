@@ -13,9 +13,13 @@ import { EditRoleModal } from './components/modals/EditRole'
 import { ViewRoleDetailsModal } from './components/modals/ViewRoleDetails'
 import { ViewRoleArchived } from './components/modals/ViewRoleArchived'
 import { RoleTable } from './components/tables/RoleTable'
+import { useAuth } from '@@/auth'
 
 
 const RolePage: FC<{title:String}> = ({title}) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
 
   const table = useTableHook<RoleModel>('/core/role/list')  
 
@@ -70,7 +74,7 @@ const RolePage: FC<{title:String}> = ({title}) => {
     })
   }
 
-  const handleProductArchivedList = async  () => {
+  const handleArchivedList = async  () => {
     setModalState({
       visible: true,
       title: 'Archived',
@@ -98,18 +102,27 @@ const RolePage: FC<{title:String}> = ({title}) => {
               data-bs-trigger='hover'
               title={`Click to add a ${title.toLowerCase()}`}
             >
-                <button onClick={() => handleProductArchivedList()}
-                    className='btn btn-sm btn-light-danger me-3'
-                  >
-                <KTIcon iconName='delete-files' className='fs-3' />
-                  Archived
-                </button>
-                <button onClick={() => handleCreate()}
-                  className='btn btn-sm btn-light-primary'
-                >
-                <KTIcon iconName='plus' className='fs-3' />
-                New {title}
-              </button>
+                {
+                   (permissions.includes("archived_role")) && (
+                      <button onClick={() => handleArchivedList()}
+                          className='btn btn-sm btn-light-danger me-3'
+                        >
+                        <KTIcon iconName='delete-files' className='fs-3' />
+                          Archived
+                      </button>
+                   )
+                }
+
+                {
+                   (permissions.includes("create_role")) && (
+                      <button onClick={() => handleCreate()}
+                          className='btn btn-sm btn-light-primary'
+                        >
+                        <KTIcon iconName='plus' className='fs-3' />
+                        New {title}
+                      </button>
+                   )
+                }
             </div>
           </div>
           {/* end::Header */}

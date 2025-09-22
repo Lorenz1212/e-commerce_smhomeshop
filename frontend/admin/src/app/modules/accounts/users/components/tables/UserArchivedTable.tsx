@@ -4,6 +4,7 @@ import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { UserListModel } from '../../core/_models'
 import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: UserListModel[]
@@ -32,6 +33,10 @@ export const UserArchivedTable: React.FC<Props> = ({
   setRefreshTable,
   setRefreshFirstTable
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
   const columns: Column<UserListModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     {
@@ -71,7 +76,7 @@ export const UserArchivedTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-           restoreAction={() => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable)}
+           restoreAction={permissions.includes('restore_product_brand') ? () => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable) : undefined}
         />
       ),
     },

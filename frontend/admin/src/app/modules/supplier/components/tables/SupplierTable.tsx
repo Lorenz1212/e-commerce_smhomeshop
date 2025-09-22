@@ -2,6 +2,7 @@ import React from 'react'
 import { DataTable, Column } from '@@@/datatable/DataTable'
 import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { SupplierModel } from '../../core/_model'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: SupplierModel[]
@@ -32,6 +33,10 @@ export const SupplierTable: React.FC<Props> = ({
   onSearchChange,
   setRefreshTable 
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
   const columns: Column<SupplierModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     { title: 'Name', key: 'name', sortable: true },
@@ -43,9 +48,9 @@ export const SupplierTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-          openDetailsModal={() => onView(item.id_encrypted)}
-          openEditModal={() => onEdit(item.id_encrypted)}
-          archiveAction={() => onArchive(item.id_encrypted,setRefreshTable)}
+          openDetailsModal={permissions.includes('view_supplier_details') ? () => onView(item.id_encrypted) : undefined}
+          openEditModal={permissions.includes('update_supplier') ? () => onEdit(item.id_encrypted) : undefined}
+          archiveAction={permissions.includes('archived_supplier') ? () => onArchive(item.id_encrypted,setRefreshTable) : undefined}
         />
       ),
     },

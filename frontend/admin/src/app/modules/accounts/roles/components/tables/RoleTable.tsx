@@ -2,6 +2,7 @@ import React from 'react'
 import { DataTable, Column } from '@@@/datatable/DataTable'
 import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { RoleModel } from '../core/_models'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: RoleModel[]
@@ -32,6 +33,11 @@ export const RoleTable: React.FC<Props> = ({
   onSearchChange,
   setRefreshTable
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
+
   const columns: Column<RoleModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     { title: 'Name',key: 'name', sortable: true },
@@ -59,9 +65,9 @@ export const RoleTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-            openDetailsModal={() => onView(item.id_encrypted)}
-            openEditModal={() => onEdit(item.id_encrypted)}
-            archiveAction={() => onArchive(item.id_encrypted,setRefreshTable)}
+            openDetailsModal={permissions.includes('view_role_details') ? () => onView(item.id_encrypted) : undefined}
+            openEditModal={permissions.includes('update_role') ? () => onEdit(item.id_encrypted) : undefined}
+            archiveAction={permissions.includes('archived_role') ? () => onArchive(item.id_encrypted,setRefreshTable) : undefined}
         />
       ),
     },

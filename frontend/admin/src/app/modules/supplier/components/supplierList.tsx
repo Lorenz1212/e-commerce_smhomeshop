@@ -15,8 +15,12 @@ import { SupplierModel } from '../core/_model'
 import { useTableHook } from '@@@@@@/hooks/useTableHook'
 import { ViewProductArchived } from '@@/products/components/modals/ViewProductArchived'
 import { ViewSupplierArchived } from './modals/ViewSupplierArchived'
+import { useAuth } from '@@/auth'
 
 const SupplierList: FC = () => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
 
   const table = useTableHook<SupplierModel>('/admin/supplier/list')  
  
@@ -97,20 +101,27 @@ const SupplierList: FC = () => {
               data-bs-trigger='hover'
               title='Click to add a user'
             >
-              <button onClick={() => handleSupplierArchivedList()}
-                  className='btn btn-sm btn-light-danger me-3'
-                >
-                <KTIcon iconName='delete-files' className='fs-3' />
-                Archived
-              </button>
-              <button onClick={() => handleCreate()}
-                className='btn btn-sm btn-light-primary'
-                // data-bs-toggle='modal'
-                // data-bs-target='#kt_modal_invite_friends'
-              >
-                <KTIcon iconName='plus' className='fs-3' />
-                New Supplier
-              </button>
+               {
+                  (permissions.includes("archived_product")) && (
+                    <button onClick={() => handleSupplierArchivedList()}
+                        className='btn btn-sm btn-light-danger me-3'
+                      >
+                      <KTIcon iconName='delete-files' className='fs-3' />
+                        Archived
+                    </button>
+                  )
+              }
+
+              {
+                  (permissions.includes("create_product")) && (
+                    <button onClick={() => handleCreate()}
+                        className='btn btn-sm btn-light-primary'
+                      >
+                      <KTIcon iconName='plus' className='fs-3' />
+                        New Supplier
+                    </button>
+                  )
+              }
             </div>
           </div>
           {/* end::Header */}

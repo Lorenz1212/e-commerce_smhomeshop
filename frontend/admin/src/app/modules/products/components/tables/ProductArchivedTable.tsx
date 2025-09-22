@@ -7,6 +7,7 @@ import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { StatusCell } from '@@@/datatable/components/StatusCell'
 import { toAbsoluteUrl } from '@/helpers'
 import { CurrencyText } from '@@@/inputmasks/CurrencyText'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: ProductModel[]
@@ -35,6 +36,9 @@ export const ProductArchivedTable: React.FC<Props> = ({
   setRefreshTable,
   setRefreshFirstTable
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
 
   const columns: Column<ProductModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
@@ -103,7 +107,7 @@ export const ProductArchivedTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-          restoreAction={() => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable)}
+          restoreAction={permissions.includes('restore_product') ? () => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable) : undefined}
         />
       ),
     },

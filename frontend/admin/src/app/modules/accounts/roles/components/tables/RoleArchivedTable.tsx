@@ -1,8 +1,8 @@
-// components/Table/SupplierTable.tsx
 import React from 'react'
 import { DataTable, Column } from '@@@/datatable/DataTable'
 import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { RoleModel } from '../core/_models'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: RoleModel[]
@@ -35,6 +35,10 @@ export const RoleArchivedTable: React.FC<Props> = ({
   setRefreshTable,
   setRefreshFirstTable
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
   const columns: Column<RoleModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     { title: 'Name',key: 'name', sortable: true },
@@ -62,7 +66,7 @@ export const RoleArchivedTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-          restoreAction={() => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable)}
+          restoreAction={permissions.includes('restore_role') ? () => onRestore(item.id_encrypted,setRefreshTable, setRefreshFirstTable) : undefined}
         />
       ),
     },

@@ -4,6 +4,7 @@ import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
 import { CustomerListModel } from '@@/customers/core/_model'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: CustomerListModel[]
@@ -34,6 +35,10 @@ export const CustomerTable: React.FC<Props> = ({
   onSearchChange,
   setRefreshTable 
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
   const columns: Column<CustomerListModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     {
@@ -73,9 +78,9 @@ export const CustomerTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-            openDetailsModal={() => onView(item.id_encrypted)}
-            openEditModal={() => onEdit(item.id_encrypted)}
-            archiveAction={() => onArchive(item.id_encrypted,setRefreshTable)}
+            openDetailsModal={permissions.includes('view_customer_details') ? () => onView(item.id_encrypted) : undefined}
+            openEditModal={permissions.includes('update_customer') ? () => onEdit(item.id_encrypted) : undefined}
+            archiveAction={permissions.includes('archived_customer') ? () => onArchive(item.id_encrypted,setRefreshTable) : undefined}
         />
       ),
     },

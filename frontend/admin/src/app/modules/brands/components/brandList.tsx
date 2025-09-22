@@ -14,10 +14,14 @@ import { EditBrandModal } from './modals/editBrand'
 import { ViewBrandArchived } from './modals/ViewBrandArchived'
 import { ProductBrandTable } from './tables/ProductBrandTable'
 import { ViewBrandDetailsModal } from './modals/ViewBrandDetails'
+import { useAuth } from '@@/auth'
 
 const BrandList: FC<{title:string}> = ({title}) => {
+  const {currentUser} = useAuth();
 
-   const table = useTableHook<ProductBrandModel>('/admin/product_brand/list')  
+  const permissions = currentUser?.permissions
+
+  const table = useTableHook<ProductBrandModel>('/admin/product_brand/list')  
 
   const { viewProductBrandDetails, archivedProductBrand } = useProductBrand()
   
@@ -98,18 +102,27 @@ const BrandList: FC<{title:string}> = ({title}) => {
               data-bs-trigger='hover'
               title='Click to add a user'
             >
-                <button onClick={() => handleCategoryArchivedList()}
-                    className='btn btn-sm btn-light-danger me-3'
-                  >
-                  <KTIcon iconName='delete-files' className='fs-3' />
-                  Archived
-                </button>
-                <button onClick={() => handleCreate()}
-                  className='btn btn-sm btn-light-primary'
-                >
-                <KTIcon iconName='plus' className='fs-3' />
-                New {title}
-              </button>
+              {
+                    (permissions.includes("archived_product")) && (
+                      <button onClick={() => handleCategoryArchivedList()}
+                          className='btn btn-sm btn-light-danger me-3'
+                        >
+                        <KTIcon iconName='delete-files' className='fs-3' />
+                          Archived
+                      </button>
+                    )
+                }
+
+                {
+                    (permissions.includes("create_product")) && (
+                      <button onClick={() => handleCreate()}
+                          className='btn btn-sm btn-light-primary'
+                        >
+                        <KTIcon iconName='plus' className='fs-3' />
+                          New {title}
+                      </button>
+                    )
+                }
             </div>
           </div>
           {/* end::Header */}

@@ -143,14 +143,14 @@ export function AsideMenuMain() {
 
   
 
-        <AsideMenuItemWithSubMain 
+        {/* <AsideMenuItemWithSubMain 
           to='/reports' 
           title='Reports' 
           fontIcon='bi-file-bar-graph-fill' 
           bsTitle='Reports'>
           <AsideMenuItem to='/reports/inventory-movement' title='Inventory Movement Reports' hasBullet={true} />
           <AsideMenuItem to='/reports/sales' title='Sales Reports' hasBullet={true} />
-        </AsideMenuItemWithSubMain>
+        </AsideMenuItemWithSubMain> */}
 
 
        {

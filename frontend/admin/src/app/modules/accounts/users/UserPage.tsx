@@ -12,9 +12,12 @@ import { EditUserModal } from './components/modals/editUser'
 import { ViewUserDetailsModal } from './components/modals/viewUserDetails'
 import { ViewUserArchived } from './components/modals/viewUserArchived'
 import { UserTable } from './components/tables/UserTable'
-
+import { useAuth } from '@@/auth'
 
 const UserPage: FC<{title:String}> = ({title}) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
 
   const table = useTableHook<UserListModel>('/core/user/list')  
 
@@ -97,18 +100,27 @@ const UserPage: FC<{title:String}> = ({title}) => {
               data-bs-trigger='hover'
               title={`Click to add a ${title.toLowerCase()}`}
             >
-                <button onClick={() => handleUserArchivedList()}
-                    className='btn btn-sm btn-light-danger me-3'
-                  >
-                <KTIcon iconName='delete-files' className='fs-3' />
-                  Archived
-                </button>
-                <button onClick={() => handleCreate()}
-                  className='btn btn-sm btn-light-primary'
-                >
-                <KTIcon iconName='plus' className='fs-3' />
-                New {title}
-              </button>
+                 {
+                    (permissions.includes("archived_product")) && (
+                      <button onClick={() => handleUserArchivedList()}
+                          className='btn btn-sm btn-light-danger me-3'
+                        >
+                        <KTIcon iconName='delete-files' className='fs-3' />
+                          Archived
+                      </button>
+                    )
+                }
+
+                {
+                    (permissions.includes("create_product")) && (
+                      <button onClick={() => handleCreate()}
+                          className='btn btn-sm btn-light-primary'
+                        >
+                        <KTIcon iconName='plus' className='fs-3' />
+                          New {title}
+                      </button>
+                    )
+                }
             </div>
           </div>
           {/* end::Header */}

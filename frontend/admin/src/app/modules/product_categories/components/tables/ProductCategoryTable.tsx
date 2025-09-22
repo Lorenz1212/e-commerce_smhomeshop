@@ -5,6 +5,7 @@ import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { ProductCategoryModel } from '../../core/_model'
 import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: ProductCategoryModel[]
@@ -35,6 +36,10 @@ export const ProductCategoryTable: React.FC<Props> = ({
   onSearchChange,
   setRefreshTable 
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
   const columns: Column<ProductCategoryModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     {
@@ -53,9 +58,9 @@ export const ProductCategoryTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-          openDetailsModal={() => onView(item.id_encrypted)}
-          openEditModal={() => onEdit(item.id_encrypted)}
-          archiveAction={() => onArchive(item.id_encrypted,setRefreshTable)}
+          openDetailsModal={permissions.includes('view_product_category_details') ? () => onView(item.id_encrypted) : undefined}
+          openEditModal={permissions.includes('update_product_category') ? () => onEdit(item.id_encrypted) : undefined}
+          archiveAction={permissions.includes('archived_product_category') ? () => onArchive(item.id_encrypted,setRefreshTable) : undefined}
         />
       ),
     },

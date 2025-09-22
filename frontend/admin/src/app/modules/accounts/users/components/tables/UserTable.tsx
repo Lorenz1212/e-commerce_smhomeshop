@@ -4,6 +4,7 @@ import { ActionsCell } from '@@@/datatable/components/ActionsCell'
 import { UserListModel } from '../../core/_models'
 import { ImageTitleCell } from '@@@/datatable/components/ImageTitleCell'
 import { toAbsoluteUrl } from '@/helpers'
+import { useAuth } from '@@/auth'
 
 type Props = {
   data: UserListModel[]
@@ -36,6 +37,10 @@ export const UserTable: React.FC<Props> = ({
   onSearchChange,
   setRefreshTable 
 }) => {
+  const {currentUser} = useAuth();
+
+  const permissions = currentUser?.permissions
+
   const columns: Column<UserListModel>[] = [
     { title: '#', key: 'row_number', sortable: true },
     {
@@ -75,10 +80,10 @@ export const UserTable: React.FC<Props> = ({
       key: 'id_encrypted',
       render: (item) => (
         <ActionsCell
-            openDetailsModal={() => onView(item.id_encrypted)}
-            openEditModal={() => onEdit(item.id_encrypted)}
-            archiveAction={() => onArchive(item.id_encrypted,setRefreshTable)}
-            resetAction={() => onResetPassword(item.id_encrypted,setRefreshTable)}
+            openDetailsModal={permissions.includes('view_user_account_details') ? () => onView(item.id_encrypted) : undefined}
+            openEditModal={permissions.includes('update_user_account') ? () => onEdit(item.id_encrypted) : undefined}
+            archiveAction={permissions.includes('archived_user_account') ? () => onArchive(item.id_encrypted,setRefreshTable) : undefined}
+            resetAction={permissions.includes('reset_user_account') ? () => onResetPassword(item.id_encrypted,setRefreshTable) : undefined}
         />
       ),
     },
