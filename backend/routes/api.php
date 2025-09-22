@@ -61,10 +61,25 @@ Route::prefix('v1')->group(function () {
          });
     });
 
-      Route::prefix('web')->group(function () {
+    Route::middleware(['auth:core', 'auth:cashier','throttle:100,1'])->group(function () {
          Route::middleware('throttle:60,1')->group(function () {
-            Route::get('/product/list', [ProductController::class, 'getlist']);
-            Route::get('/product/{product_id}/details', [ProductController::class, 'showDetails']);
+            Route::get('/supplier', [DataFetcher::class, 'getSupplier']);
+            Route::get('/category', [DataFetcher::class, 'getProductCategory']);
+            Route::get('/feedback_source', [DataFetcher::class, 'getFeedbackSource']);
+            Route::get('/handle_by', [DataFetcher::class, 'getHandlerBy']);
+            Route::get('/sentimentModel', [DataFetcher::class, 'getSentimentModel']);
+            Route::get('/store', [DataFetcher::class, 'getStores']);
+            Route::get('/addons', [DataFetcher::class, 'getAddons']);
+            Route::get('/brands', [DataFetcher::class, 'getProductBrand']);
+            Route::get('/definers', [DataFetcher::class, 'getAllDefiners']);
          });
+    });
+
+    Route::prefix('web')->group(function () {
+      Route::middleware('throttle:60,1')->group(function () {
+         Route::get('/product/list', [ProductController::class, 'getlist']);
+         Route::get('/product/{product_id}/details', [ProductController::class, 'showDetails']);
       });
+   });
+    
 });
