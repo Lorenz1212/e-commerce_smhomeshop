@@ -11,9 +11,9 @@ import { ProductBrandModel } from '../core/_model'
 import { useProductBrand } from '../core/_request'
 import { CreateBrandModal } from './modals/createBrand'
 import { EditBrandModal } from './modals/editBrand'
-import { ViewBrandDetailsModal } from './modals/viewBrandDetails'
 import { ViewBrandArchived } from './modals/ViewBrandArchived'
 import { ProductBrandTable } from './tables/ProductBrandTable'
+import { ViewBrandDetailsModal } from './modals/ViewBrandDetails'
 
 const BrandList: FC<{title:string}> = ({title}) => {
 

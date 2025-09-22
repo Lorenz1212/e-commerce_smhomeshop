@@ -6,6 +6,7 @@ import {MasterInit} from '../_metronic/layout/MasterInit'
 import {AuthInit} from './modules/auth'
 import {ThemeModeProvider} from '../_metronic/partials/layout/theme-mode/ThemeModeProvider'
 import { LoaderProvider } from '@@@/LoaderContext'
+import { DefinersProvider } from '@@@/DefinersContext'
 
 const App = () => {
   return (
@@ -14,10 +15,12 @@ const App = () => {
         <LayoutProvider>
           <ThemeModeProvider>
             <LoaderProvider>
-              <AuthInit>
-                <Outlet />
-                <MasterInit />
-              </AuthInit>
+              <DefinersProvider>
+                <AuthInit>
+                  <Outlet />
+                  <MasterInit />
+                </AuthInit>
+              </DefinersProvider>
             </LoaderProvider>
           </ThemeModeProvider>
         </LayoutProvider>
