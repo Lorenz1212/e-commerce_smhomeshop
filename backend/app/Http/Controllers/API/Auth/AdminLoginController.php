@@ -54,8 +54,8 @@ class AdminLoginController extends Controller
             $modules = ['core','cashier'];
 
             if($mainRole !== 'core'){
-            $modules = $user->roles->pluck('name')->filter(fn($r) => in_array($r, ['cashier', 'core']))->values()->all();
-            $mainRole = $user->roles->whereNotIn('name', ['core', 'cashier'])->pluck('name')->first();
+                $modules = $user->roles->pluck('name')->filter(fn($r) => in_array($r, ['cashier', 'core']))->values()->all();
+                $mainRole = $user->roles->whereNotIn('name', ['core', 'cashier'])->pluck('name')->first();
             }
 
             $permissions = $user->getAllPermissions()->pluck('name');
