@@ -49,7 +49,7 @@ export const ProductTable: React.FC<Props> = ({
       key: 'image_cover',
       render: (item:any) => (
         <ImageTitleCell
-            image={item.primary_image?.image_cover??toAbsoluteUrl('media/products/default.jpg')}
+            image={item.primary_image?.image_cover??toAbsoluteUrl('media/default.jpg')}
             mainTitle={item.name}
             subTitle={item.sku}
         />
