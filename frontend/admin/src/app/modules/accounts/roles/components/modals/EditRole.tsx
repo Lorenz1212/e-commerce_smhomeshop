@@ -65,7 +65,7 @@ const EditRoleModal: FC<Props> = ({roleID,
         <div className='col-md-12'>
           <PermissionSelector
             selected={formik.values.permissions}
-            onChange={(val) => formik.setFieldValue('permissions', val)}
+            onChange={(val: number[]) => formik.setFieldValue('permissions', val)}
           />
           {formik.touched.permissions && formik.errors.permissions && (
             <div className='text-danger small'>{formik.errors.permissions as string}</div>

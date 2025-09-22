@@ -32,12 +32,11 @@ const PermissionSelector: FC<Props> = ({ selected, onChange }) => {
         }))
         setPermissionsList(mapped)
 
-        // build dependencies dynamically
+        // Build dependency map
         const deps: Record<number, number[]> = {}
         const ctp: Record<number, number> = {}
 
         mapped.forEach((group) => {
-          // hanapin parent = permission na "View List"
           const parent = group.permissions.find(
             (p) => p.name.toLowerCase() === 'view list'
           )
@@ -64,26 +63,24 @@ const PermissionSelector: FC<Props> = ({ selected, onChange }) => {
     let newSelected = [...selected]
 
     if (newSelected.includes(id)) {
-      // uncheck
+      // uncheck this permission
       newSelected = newSelected.filter((pid) => pid !== id)
 
-      // kung parent siya, tanggalin lahat ng anak
+      // if it's a parent, also remove all children
       if (dependencies[id]) {
         newSelected = newSelected.filter((pid) => !dependencies[id].includes(pid))
       }
     } else {
-      // check
+      // check this permission
       newSelected.push(id)
 
-      // kung child siya, auto-check parent
+      // if it's a child, auto-check parent
       if (childToParent[id]) {
         newSelected.push(childToParent[id])
       }
     }
 
-    // unique values
-    newSelected = [...new Set(newSelected)]
-    onChange(newSelected)
+    onChange([...new Set(newSelected)])
   }
 
   const toggleGroupPermissions = (permissions: PermissionItem[]) => {
@@ -91,19 +88,19 @@ const PermissionSelector: FC<Props> = ({ selected, onChange }) => {
     const allSelected = ids.every((id) => selected.includes(id))
 
     if (allSelected) {
-      // unselect all in group
-      let newSelected = selected.filter((id) => !ids.includes(id))
-
-      // tanggalin din lahat ng anak ng mga parent sa group
+      // Unselect all in this group + all their children
+      const toRemove = new Set<number>()
       ids.forEach((id) => {
+        toRemove.add(id)
         if (dependencies[id]) {
-          newSelected = newSelected.filter((pid) => !dependencies[id].includes(pid))
+          dependencies[id].forEach((child) => toRemove.add(child))
         }
       })
 
+      const newSelected = selected.filter((id) => !toRemove.has(id))
       onChange(newSelected)
     } else {
-      // add all (merge unique)
+      // Select all in this group (merge unique)
       const newSelected = [...new Set([...selected, ...ids])]
       onChange(newSelected)
     }
