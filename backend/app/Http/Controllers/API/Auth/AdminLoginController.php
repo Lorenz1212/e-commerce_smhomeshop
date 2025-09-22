@@ -58,7 +58,7 @@ class AdminLoginController extends Controller
                 $mainRole = $user->roles->whereNotIn('name', ['core', 'cashier'])->pluck('name')->first();
             }
 
-            $permissions = $user->getAllPermissions()->pluck('name');
+            $permissions = $user->getAllPermissions()->whereNull('deleted_at')->pluck('name');
 
             return $this->returnData([
                 'user' => [
