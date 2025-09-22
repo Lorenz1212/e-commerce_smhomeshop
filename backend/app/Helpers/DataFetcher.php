@@ -227,8 +227,8 @@ class DataFetcher extends Controller {
             
             $definers = Cache::remember('all_definers', 3600, function () {
                 return SystemDefinition::where('is_active', 'Y')
-                    ->get(['name_code', 'value', 'description'])
-                    ->keyBy('name_code');
+                    ->get(['code', 'value', 'description'])
+                    ->keyBy('code');
             });
 
             return response()->json($definers, 200);
