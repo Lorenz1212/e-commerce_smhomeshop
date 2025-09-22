@@ -18,7 +18,7 @@ use App\Http\Controllers\API\Admin\Core\UserAccountController;
 |
 */
 Route::prefix('v1')->group(function () {
-    Route::middleware(['auth:core', 'role:core,Administrator','throttle:100,1'])->prefix('core')->group(function () {
+    Route::middleware(['auth:core', 'role:core,administrator','throttle:100,1'])->prefix('core')->group(function () {
         
         Route::get('/permissions', [DataFetcher::class, 'getPermissions']);
         Route::get('/roles', [DataFetcher::class, 'getRoles']);
