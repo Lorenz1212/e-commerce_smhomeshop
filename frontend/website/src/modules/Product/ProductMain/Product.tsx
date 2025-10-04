@@ -333,11 +333,11 @@ const Product = () => {
                       key={variant.id_encrypted}
                       title={
                         <div style={{ textAlign: "center" }}>
-                          <div>{variant.variant_name}</div>
+                          <div>{variant.variant_name }</div>
                           <button 
                           className="viewImageBtn"
                           onClick={() => {
-                            handleOpenModal(variant.image_cover);
+                            handleOpenModal(variant.image_cover || defaultImage);
                           }}
                           >View Image</button>
                         </div>
@@ -348,7 +348,7 @@ const Product = () => {
                       arrow
                     >
                       <img
-                        src={variant.image_cover}
+                        src={variant.image_cover || defaultImage}
                         alt={variant.variant_name}
                         className={`variantThumb ${selectSize === variant.id_encrypted ? "active" : ""}`}
                         onClick={() => {
