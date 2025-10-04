@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('addon_id')->constrained('addons')->onDelete('cascade');
             $table->decimal('unit_price', 10, 2);
             $table->decimal('subtotal', 10, 2);
+            $table->enum('is_freebie', ['Y', 'N'])->default('N');
             $table->timestamps();
         });
     }
