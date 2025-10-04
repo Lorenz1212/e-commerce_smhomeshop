@@ -3,6 +3,7 @@ import "./Category.css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
+import defaultImage from "@/assets/ProductDetail/default.jpg";
 import { useNavigate } from 'react-router-dom'
 import { Navigation } from "swiper/modules";
 import { Autoplay } from "swiper/modules";
@@ -86,7 +87,7 @@ const Category = () => {
                     <div className="lpImageContainer">
                       <Link to={`/shop/${category.name.toLowerCase()}`} onClick={scrollToTop}>
                         <img
-                          src={category.image_cover}
+                          src={category.image_cover || defaultImage}
                           alt={category.name}
                           className="lpImage"
                         />
