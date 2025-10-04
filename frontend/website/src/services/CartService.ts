@@ -30,7 +30,6 @@ export const useCart = () => {
   
   const fetchCartCount = async () => {
     try {
-        
       const response = await api.get(`/customer/auth/cart/count`);
       dispatch(setCartCount(response.data));
     } catch (error: any) {

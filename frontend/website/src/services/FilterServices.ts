@@ -35,7 +35,6 @@ export const useFilter = () => {
 
   const fetchPriceRange = async ()=> {
     try {
-      showLoader()
       const response = await api.get<PriceRangeModel>(`/pricerange`);
       return response.data;
     } catch (error: any) {
@@ -44,8 +43,6 @@ export const useFilter = () => {
         title: error?.response?.data?.message,
       })
       return null; 
-    } finally{
-      hideLoader()
     }
   };
   return { fetchCategory, fetchBrands, fetchPriceRange }
