@@ -4,6 +4,7 @@ import "./Trendy.css";
 import { Link } from "react-router-dom";
 import { FiHeart } from "react-icons/fi";
 import { FaStar } from "react-icons/fa";
+import defaultImage from "@/assets/ProductDetail/default.jpg";
 import { useAuth } from "@/modules/Authentication";
 import { ModalResponse } from "@/utils/types";
 import Popup from "@/components/ModalHandler/Popup";
@@ -74,14 +75,9 @@ const Trendy: React.FC = () => {
           <div className="trendyProductImages">
             <Link to={`/product/${product.id_encrypted}`}>
               <img
-                src={product.front_image || "/placeholder.jpg"}
+                src={product.image_cover || defaultImage}
                 alt={product.name}
                 className="trendyProduct_front"
-              />
-              <img
-                src={product.back_image || "/placeholder.jpg"}
-                alt={product.name}
-                className="trendyProduct_back"
               />
             </Link>
             <h4 onClick={() => goToProduct(product.id_encrypted)}>View Details</h4>
