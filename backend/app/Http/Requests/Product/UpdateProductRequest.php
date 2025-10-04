@@ -42,6 +42,7 @@ class UpdateProductRequest extends FormRequest
             'sku' => 'required|string|max:255|unique:products,sku,' . $product_id,
             'name' => 'required|string|max:100',
             'description' => 'required|string',
+            'long_description' => 'nullable',
             'category_id' => 'required|exists:product_categories,id',
             'reorder_point' => 'required|integer|min:0',
             'add_new_stocks' => 'required|integer|min:0',

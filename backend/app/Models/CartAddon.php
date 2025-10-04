@@ -11,7 +11,7 @@ class CartAddon extends BaseModel
     use HasFactory;
 
     protected $fillable = [
-        'cart_id', 'addon_id', 'unit_price', 'subtotal'
+        'cart_id', 'addon_id', 'unit_price', 'subtotal', 'is_freebie'
     ];
 
      protected $appends = [

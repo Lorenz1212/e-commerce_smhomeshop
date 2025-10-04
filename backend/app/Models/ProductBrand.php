@@ -64,10 +64,14 @@ class ProductBrand extends BaseModel
                     // Get the full URL to the image file
                     return url(Storage::url('images/brands/'.$this->image));
                 }
-
                 // Return the full URL to the default image
                 return url(Storage::url('images/brands/default.jpg'));
             }
         );
+    }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'brand_id');
     }
 }

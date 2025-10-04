@@ -6,13 +6,14 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Product extends BaseModel
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'sku', 'name', 'description','category_id', 'brand_id', 'quantity_on_hand', 'reorder_point', 'supplier_id', 'cost_price', 'selling_price'
+        'sku', 'name', 'description', 'long_description','category_id', 'brand_id', 'quantity_on_hand', 'reorder_point', 'supplier_id', 'cost_price', 'selling_price'
     ];
 
     protected $appends = [
@@ -121,5 +122,38 @@ class Product extends BaseModel
     public function brand()
     {
         return $this->belongsTo(ProductBrand::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OnlineOrderItem::class);
+    }
+
+    public function relatedProducts($limit = 8)
+    {
+        return self::with(['primaryImage','variants','category','brand'])    
+            ->withMin('variants', 'selling_price')
+            ->withMax('variants', 'selling_price')
+            ->selectRaw('
+                (CASE WHEN products.category_id = ? THEN 2 ELSE 0 END) +
+                (CASE WHEN products.brand_id = ? THEN 1 ELSE 0 END) +
+                IFNULL(cp.frequency, 0) as score
+            ', [$this->category_id, $this->brand_id])
+            ->leftJoinSub(
+                DB::table('online_order_items as oi')
+                    ->join('online_order_items as oi2', 'oi.order_id', '=', 'oi2.order_id')
+                    ->where('oi.product_id', $this->id)
+                    ->where('oi2.product_id', '!=', $this->id)
+                    ->select('oi2.product_id', DB::raw('COUNT(*) as frequency'))
+                    ->groupBy('oi2.product_id'),
+                'cp',
+                'cp.product_id',
+                '=',
+                'products.id'
+            )
+            ->where('products.id', '!=', $this->id)
+            ->orderByDesc('score')
+            ->limit($limit)
+            ->get();
     }
 }

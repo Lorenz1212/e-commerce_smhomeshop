@@ -25,3 +25,151 @@ img {
     tap-highlight-color: transparent; /* For Android */
   }
 }
+
+/* Wrap each field for better spacing */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px; /* space between fields */
+  width: 100%;
+  text-align: left;
+}
+
+/* Label styling */
+.form-label {
+  font-weight: 600;
+  font-size: 15px;
+  margin-bottom: 6px;      /* space between label & input */
+  color: #333;             /* subtle dark gray for readability */
+}
+
+
+/* Container for error message */
+.form-error-message {
+  margin-top: 5px;
+  font-size: 12px;
+  color: #d93025;          /* Google-style red */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+/* Optional subtle icon */
+
+/* Smooth fade in for better UX */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+form input.is-invalid {
+  border-color: #d93025;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.15);
+}
+
+form input.is-valid {
+  border-color: #34a853; /* subtle green for valid state */
+  box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.15);
+}
+
+form select.is-invalid {
+  border-color: #d93025;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.15);
+}
+
+form select.is-valid {
+  border-color: #34a853; /* subtle green for valid state */
+  box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.15);
+}
+
+
+.login-button-black {
+  padding: 20px !important;
+  background-color: black !important;
+  color: white !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important; /* smooth hover */
+}
+
+.login-button-black:hover {
+  background-color: rgb(92, 92, 92) !important;
+  color: black !important;
+  border: 1px solid black !important;
+}
+
+.login-button-white {
+  padding: 20px !important;
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 1px solid #000 !important;
+  cursor: pointer !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important; /* smooth hover */
+}
+
+.login-button-white:hover {
+  background-color: rgb(92, 92, 92) !important;
+  color: white !important;
+}
+
+.datepicker-wrapper {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+}
+
+/* Input look */
+.datepicker-input {
+  width: 100%;
+  max-width: 225px;
+  padding: 12px 16px;
+  border: 2px solid #e4e4e4;
+  font-size: 14px;
+  outline: none;
+  text-align: left; /* input text aligned to right */
+  cursor: pointer;
+  transition: border 0.2s ease;
+}
+
+.datepicker-input:focus {
+  border-color: black;
+}
+
+/* Error state */
+.datepicker-input.is-invalid {
+  border-color: #c32929;
+}
+
+/* Datepicker popup styling */
+.react-datepicker {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+}
+
+.react-datepicker__header {
+  background-color: #f9f9f9;
+  border-bottom: 1px solid #e4e4e4;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: black !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+.react-datepicker__year-read-view{
+ width: 100%;
+  max-width: 225px;
+}
+.react-datepicker__year-read-view--selected-year{
+  font-size: 11px;
+}

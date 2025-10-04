@@ -10,10 +10,13 @@ use App\Models\Feedback;
 use App\Models\FeedbackSource;
 use App\Models\OnlineOrder;
 use App\Models\ProductAddon;
+use App\Traits\Encryption;
 use Carbon\Carbon;
 
 class OrderService
 {
+    use Encryption; 
+
     public function getCartList(){
 
         $user_id = Auth::guard('customer')->user()->id;
@@ -27,16 +30,22 @@ class OrderService
                 'id' => $cart->id_encrypted,
                 'product_id' => $cart->product->id_encrypted,
                 'product_name' => $cart->product->name,
-                'image_url' => $cart->product->images->first()?->image_cover,
-                'selling_price' => $cart->product->selling_price,
+                'image_url' => $cart->product->primary_image?->image_cover,
+                'selling_price' => $cart->variant ? ($cart->variant->selling_price ?? $cart->product->selling_price) : $cart->product->selling_price,
                 'quantity' => $cart->quantity,
-                'addons' => $cart->cart_addons->map(function ($cart_addons) use ($cart) {
+                'variant'      => $cart->variant ? [
+                    'id'           => $cart->variant->id_encrypted,
+                    'name'         => $cart->variant->variant_name,
+                    'selling_price'=> $cart->variant->selling_price
+                ] : null,
+                'addons' => $cart->cart_addons->map(function ($cart_addons) {
                     return [
                         'id' => $cart_addons->addon_id,
                         'name' => $cart_addons->addon->name,
                         'price' => $cart_addons->subtotal
                     ];
-                })
+                }),
+                
             ];
         }
 
@@ -51,17 +60,25 @@ class OrderService
     }
 
     public function cartStore($request){
-
+   
         $user = Auth::guard('customer')->user();
 
-        $addonIdsFromRequest = collect($request->addons ?? [])->sort()->values()->toArray();
-        $addonSignature = md5(json_encode($addonIdsFromRequest)); // unique per combination
+        $addonIdsFromRequest = collect($request->addons ?? [])
+            ->map(function ($addon) {
+                return $this->decrypt_string($addon['addon_id']); 
+            })
+            ->sort()
+            ->values()
+            ->toArray();
+     
+        $addonSignature = md5(json_encode($addonIdsFromRequest)); 
 
-        // Check if cart exists with same product + same addon combo
+        
         $cart = Cart::where('customer_id', $user->id)
             ->where('product_id', $request->product_id)
+            ->where('variant_id', $request->variant_id)
             ->where('status', c('CART_PENDING'))
-            ->where('addon_signature', $addonSignature) // new column in carts table
+            ->where('addon_signature', $addonSignature)
             ->first();
 
         if ($cart) {
@@ -71,9 +88,10 @@ class OrderService
             $cart = Cart::create([
                 'customer_id' => $user->id,
                 'product_id' => $request->product_id,
+                'variant_id' => $request->variant_id,
                 'quantity' => $request->quantity,
                 'status' => c('CART_PENDING'),
-                'addon_signature' => $addonSignature, // save signature
+                'addon_signature' => $addonSignature,
             ]);
         }
 
@@ -92,14 +110,15 @@ class OrderService
                         'addon_id' => $product_addon->addon_id,
                     ],
                     [
-                        'unit_price' => $product_addon->custom_price,
-                        'subtotal'=> ($product_addon->custom_price*$request->quantity)
+                        'unit_price' => ($product_addon->addon->is_freebies=='N')? $product_addon->custom_price:0,
+                        'subtotal'   => ($product_addon->addon->is_freebies=='N')?($product_addon->custom_price*$request->quantity):0,
+                        'is_freebie' => $product_addon->addon->is_freebies
                     ]
                 );
             }
         }
 
-        return $cart->product->name;
+        return Cart::where('customer_id', $user->id)->where('status', 'PENDING')->count();
     }
 
     public function cartUpdate($request){

@@ -40,4 +40,23 @@ class ProductController extends Controller
             return $this->ExceptionHandler($e);
         }
     }
+
+    public function getRelatedProducts(string $product_id)
+    {
+         try {
+            DB::beginTransaction();
+
+            $product_id = $this->decrypt_string($product_id);
+
+            $data = $this->productService->getRelatedProducts($product_id);
+
+            DB::commit();
+            
+            return $this->returnData($data);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->ExceptionHandler($e);
+        }
+    }
 }

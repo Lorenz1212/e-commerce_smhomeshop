@@ -156,6 +156,8 @@ class CustomerController extends Controller
 
             $request['product_id'] = $this->decrypt_string($request->product_id);
 
+            $request['variant_id'] = $request->variant_id ? $this->decrypt_string($request->variant_id):null;
+
             $response = $this->orderService->cartStore($request);
 
             DB::commit();

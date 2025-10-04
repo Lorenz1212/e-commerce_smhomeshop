@@ -4,6 +4,7 @@ use App\Helpers\DataFetcher;
 use App\Http\Controllers\API\Auth\AdminLoginController;
 use App\Http\Controllers\API\Auth\CashierLoginController;
 use App\Http\Controllers\API\Auth\CustomerLoginController;
+use App\Http\Controllers\API\Website\HomeController;
 use App\Http\Controllers\API\Website\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,7 +56,7 @@ Route::prefix('v1')->group(function () {
 
          Route::middleware(['auth:customer','throttle:100,1'])->group(function () {
             Route::post('/logout', [CustomerLoginController::class, 'logout']);
-            Route::get('/me', [CustomerLoginController::class, 'me']);
+            Route::post('/me', [CustomerLoginController::class, 'me']);
             Route::post('/change_password', [CustomerLoginController::class, 'changePassword']);
             Route::post('/profile', [CustomerLoginController::class, 'profile']);
          });
@@ -70,15 +71,25 @@ Route::prefix('v1')->group(function () {
             Route::get('/sentimentModel', [DataFetcher::class, 'getSentimentModel']);
             Route::get('/store', [DataFetcher::class, 'getStores']);
             Route::get('/addons', [DataFetcher::class, 'getAddons']);
-            Route::get('/brands', [DataFetcher::class, 'getProductBrand']);
-            Route::get('/definers', [DataFetcher::class, 'getAllDefiners']);
          });
     });
 
-    Route::prefix('web')->group(function () {
+   Route::middleware('throttle:60,1')->group(function () {
+      Route::get('/definers', [DataFetcher::class, 'getAllDefiners']);
+      Route::get('/category', [DataFetcher::class, 'getProductCategory']);
+      Route::get('/brands', [DataFetcher::class, 'getProductBrand']);
+      Route::get('/pricerange', [DataFetcher::class, 'getPriceRange']);
+   });
+
+   Route::prefix('web')->group(function () {
       Route::middleware('throttle:60,1')->group(function () {
-         Route::get('/product/list', [ProductController::class, 'getlist']);
+         Route::get('/home/best_seller', [HomeController::class, 'getProductBestSeller']);
+         Route::get('/home/new_arrival', [HomeController::class, 'getProductNewArrival']);
+         Route::get('/home/product_all', [HomeController::class, 'getProductAll']);
+         
+         Route::post('/product/list', [ProductController::class, 'getlist']);
          Route::get('/product/{product_id}/details', [ProductController::class, 'showDetails']);
+         Route::get('/product/{product_id}/related', [ProductController::class, 'getRelatedProducts']);
       });
    });
     

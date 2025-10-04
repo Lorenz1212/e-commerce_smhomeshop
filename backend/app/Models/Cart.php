@@ -12,7 +12,7 @@ class Cart extends BaseModel
     use HasFactory;
 
     protected $fillable = [
-        'customer_id', 'product_id', 'quantity', 'status'
+        'customer_id', 'product_id', 'variant_id', 'quantity', 'status', 'addon_signature'
     ];
 
      protected $appends = [
@@ -58,5 +58,10 @@ class Cart extends BaseModel
     public function cart_addons()
     {
         return $this->hasMany(CartAddon::class);
+    }
+
+    public function variant()
+    {
+        return $this->belongsTo(ProductVariant::class);
     }
 }

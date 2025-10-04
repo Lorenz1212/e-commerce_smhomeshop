@@ -34,6 +34,7 @@ class StoreProductRequest extends FormRequest
             'sku' => 'required|string|max:255|unique:products,sku',
             'name' => 'required|string|max:100',
             'description' => 'required|string',
+            'long_description' => 'nullable',
             'category_id' => 'required|exists:product_categories,id',
             'quantity_on_hand' => 'required|integer|min:0',
             'reorder_point' => 'required|integer|min:0',

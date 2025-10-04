@@ -8,14 +8,17 @@ use App\Exceptions\ExceptionHandler;
 use App\Models\Addon;
 use App\Models\FeedbackSource;
 use App\Models\PermissionParent;
+use App\Models\Product;
 use App\Models\ProductBrand;
 use App\Models\ProductCategory;
+use App\Models\ProductVariant;
 use App\Models\SentimentModel;
 use App\Models\Store;
 use App\Models\Supplier;
 use App\Models\SystemDefinition;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
 class DataFetcher extends Controller {
@@ -48,21 +51,15 @@ class DataFetcher extends Controller {
 
     public function getProductCategory(Request $request){
         try{
-            $query = ProductCategory::query();
-
-            if(isset($request->id)){
-                $id = $request->category_id;
-                $query->where('id',$id);
-            }
-
-            $result = $query->get();
+            $result = ProductCategory::get();
 
             $data = [];
 
             foreach($result as $row){
                 $data[] = [
                     'id' => $row->id,
-                    'name' => $row->name
+                    'name' => $row->name,
+                    'image_cover'=> $row->images->first()?->image_cover
                 ];
             }
 
@@ -74,11 +71,10 @@ class DataFetcher extends Controller {
 
     public function getProductBrand(Request $request){
         try{
-            $query = ProductBrand::query();
-
-            if(isset($request->id)){
-                $id = $request->category_id;
-                $query->where('id',$id);
+            $query = ProductBrand::withCount('products');
+            
+            if ($request->has('category_id')) {
+                $query->where('id', $request->category_id);
             }
 
             $result = $query->get();
@@ -88,7 +84,8 @@ class DataFetcher extends Controller {
             foreach($result as $row){
                 $data[] = [
                     'id' => $row->id,
-                    'name' => $row->name
+                    'name' => $row->name,
+                    'product_count' => $row->products_count
                 ];
             }
 
@@ -223,7 +220,7 @@ class DataFetcher extends Controller {
 
     public function getAllDefiners()
     {
-         try {
+        try {
             
             $definers = Cache::remember('all_definers', 3600, function () {
                 return SystemDefinition::where('is_active', 'Y')
@@ -235,6 +232,26 @@ class DataFetcher extends Controller {
         } catch (\Throwable $e) {
             return ExceptionHandler::handle($e);
         }
-      
+    }
+
+    public function getPriceRange()
+    {
+        try {
+            $productMin = Product::min('selling_price');
+            $productMax = Product::max('selling_price');
+
+            $variantMin = ProductVariant::min('selling_price');
+            $variantMax = ProductVariant::max('selling_price');
+
+            $min = min(array_filter([$productMin, $variantMin]));
+            $max = max(array_filter([$productMax, $variantMax]));
+
+            return response()->json([
+                'minPrice' => (float) $min,
+                'maxPrice' => (float) $max,
+            ],200);
+        } catch (\Throwable $e) {
+            return ExceptionHandler::handle($e);
+        }
     }
 }

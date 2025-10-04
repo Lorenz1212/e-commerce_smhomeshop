@@ -1,0 +1,22 @@
+
+import { UserModel,useAuth } from "@/modules/Authentication";
+import { ReactNode, createContext, useContext } from "react";
+
+type PermissionProviderProps = {
+  children: ReactNode;
+};
+
+const PermissionContext = createContext<string[] | null>(null);
+
+export const PermissionProvider = ({ children }: PermissionProviderProps) => {
+
+  const { currentUser }: { currentUser?: UserModel } = useAuth();
+
+  return (
+    <PermissionContext.Provider value={currentUser?.permissions??[]}>
+      {children}
+    </PermissionContext.Provider>
+  );
+};
+
+export const usePermissions = () => useContext(PermissionContext);

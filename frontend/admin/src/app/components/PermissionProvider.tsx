@@ -11,7 +11,6 @@ export const PermissionProvider = ({ children }: PermissionProviderProps) => {
 
   const { currentUser }: { currentUser?: UserModel } = useAuth();
 
-  console.log(currentUser)
   return (
     <PermissionContext.Provider value={currentUser?.permissions??[]}>
       {children}
