@@ -50,7 +50,9 @@ const Navbar = () => {
   useEffect(() => {
     const page = (!currentUser || typeof currentUser == 'undefined')?`/login-signup?tab=login`:`/my_account`;
     setAuthPage(page);
-    controller.fetchCartCount()
+    if(!currentUser || typeof currentUser == 'undefined'){
+         controller.fetchCartCount()
+    }
   }, [currentUser]);
 
 

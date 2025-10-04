@@ -51,6 +51,7 @@
     "eslint": "^9.36.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
+    "ftp-deploy": "^2.4.7",
     "globals": "^16.4.0",
     "sass-embedded": "^1.93.2",
     "typescript": "~5.8.3",
