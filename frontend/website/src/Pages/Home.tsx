@@ -16,7 +16,7 @@ const Home = () => {
       {/* <LimitedEdition/> */}
       <Trendy />
       <DealTimer />
-      <Banner />
+      {/* <Banner /> */}
       <Instagram />
       <Services />
       
