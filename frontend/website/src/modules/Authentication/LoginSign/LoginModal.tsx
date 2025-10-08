@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from "react-router-dom";
-import popupImg from "../../../assets/newsletter-popup.jpg";
+import popupImg from "../../../assets/April_Content5866.webp";
 
 const LoginModal = () => {
   return (
