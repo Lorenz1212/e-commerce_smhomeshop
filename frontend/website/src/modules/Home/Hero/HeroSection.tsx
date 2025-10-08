@@ -55,7 +55,7 @@ const HeroSection = () => {
               minPolarAngle={Math.PI / 2}
             />
 
-            <SofaOBJ color={tshirtColor} />
+            <SofaModel color={tshirtColor} />
           </Canvas>
           <div className="heroColorBtn">
             <button
