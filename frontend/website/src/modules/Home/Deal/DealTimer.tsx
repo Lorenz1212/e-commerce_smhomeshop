@@ -65,19 +65,23 @@ const DealTimer = () => {
         <div className="dealTimer">
           <div className="dealTimerMainContent">
             <div className="dealTimeContent">
-              <p>Deal of the Week</p>
+              <p>Live Beautifully</p>
               <h3>
-                Spring
-                <span> Collection</span>
+                Style Up 
+                <span> Your Space</span>
               </h3>
+              <span>
+                Furnish your space with pieces that reflect your lifestyle.<br/>
+                From essentials to statement pieces — SM Home has it all.
+              </span>
               <div className="dealTimeLink">
-                <Link to="/shop" onClick={scrollToTop}>
+                <Link to="/shop/all" onClick={scrollToTop}>
                   Shop Now
                 </Link>
               </div>
             </div>
             <div className="dealTimeCounter">
-              <div className="dealTimeDigit">
+              {/* <div className="dealTimeDigit">
                 <h4>{timeLeft.days}</h4>
                 <p>Days</p>
               </div>
@@ -95,7 +99,7 @@ const DealTimer = () => {
               <div className="dealTimeDigit">
                 <h4>{formatTime(timeLeft.seconds)}</h4>
                 <p>Seconds</p>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
