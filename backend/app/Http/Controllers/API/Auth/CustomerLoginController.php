@@ -212,4 +212,21 @@ class CustomerLoginController extends Controller
             return $this->ExceptionHandler($e);
         }
     }
+
+    public function getCustomerAddress()
+    {
+        try {
+            DB::beginTransaction();
+
+            $response = $this->authService->getCustomerAddress();
+
+            DB::commit();
+
+            return $this->returnData($response);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->ExceptionHandler($e);
+        }
+    }
 }

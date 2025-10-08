@@ -52,17 +52,21 @@ abstract class BaseModel extends Model
 
     public static function generateNumber()
     {
-        // Combine parts to form the final ID
         $date = Carbon::now();
+        $year = $date->format('y'); // e.g. "25"
 
-        $lastRecord = self::whereYear('created_at', $date->format('Y'))->count();
-        // Get the last two digits of the year
-        $lastTwoDigitsOfYear = $date->format('y');
-        // Current seconds
-        $filler = str_pad($lastRecord + 1, 5, '0', STR_PAD_LEFT);
+        // Fetch last record of this year
+        $lastRecord = self::whereYear('created_at', $date->format('Y'))
+            ->orderByDesc('id')
+            ->first();
 
-        $ID = $lastTwoDigitsOfYear . $filler;
+        $lastSequence = 0;
+        if ($lastRecord) {
+            $lastSequence = intval(substr($lastRecord->customer_no, 2)); 
+        }
 
-        return $ID;
+        $newSequence = str_pad($lastSequence + 1, 5, '0', STR_PAD_LEFT);
+
+        return $year . $newSequence; 
     }
 }

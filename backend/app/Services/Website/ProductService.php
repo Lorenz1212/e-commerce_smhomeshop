@@ -88,7 +88,6 @@ class ProductService
         ->withMax('variants', 'selling_price')
         ->findOrFail($product_id);
 
-        
         $response->product_addons->transform(function ($productAddon) {
             $productAddon->base_price = $productAddon->addon->base_price ?? null;
             return $productAddon;

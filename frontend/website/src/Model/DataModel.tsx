@@ -57,9 +57,25 @@ export interface CartItem {
   }[];
 }
 
-
-
 export interface DataTableResponse {
   data: ProductModel[];
   pagination: PaginationMeta;
+}
+
+
+export interface AddressModel {
+  value: number;
+  label: string;
+}
+
+export interface CustomerAddressModel {
+  id_encrypted:string;
+  full_address: string;
+  company_name: string;
+  address: string;
+  region_code: string;
+  province_code: string;
+  city_code: string;
+  brgy_code: string;
+  postal_code: string;
 }

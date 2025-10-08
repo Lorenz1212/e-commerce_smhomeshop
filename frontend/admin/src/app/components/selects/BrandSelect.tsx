@@ -52,7 +52,7 @@ export const BrandSelect: React.FC<Props> = ({
           })
         }
         onBlur={onBlur}
-       className={clsx('form-select-solid text-dark', {
+        className={clsx('form-select-solid text-dark', {
           'is-invalid': error && touched,
         },{})}
       />

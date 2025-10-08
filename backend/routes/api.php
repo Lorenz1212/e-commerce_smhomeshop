@@ -1,6 +1,7 @@
 <?php
 
 use App\Helpers\DataFetcher;
+use App\Helpers\AddressHelper;
 use App\Http\Controllers\API\Auth\AdminLoginController;
 use App\Http\Controllers\API\Auth\CashierLoginController;
 use App\Http\Controllers\API\Auth\CustomerLoginController;
@@ -59,6 +60,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/me', [CustomerLoginController::class, 'me']);
             Route::post('/change_password', [CustomerLoginController::class, 'changePassword']);
             Route::post('/profile', [CustomerLoginController::class, 'profile']);
+            Route::get('/address', [CustomerLoginController::class, 'getCustomerAddress']);
          });
     });
 
@@ -79,6 +81,11 @@ Route::prefix('v1')->group(function () {
       Route::get('/category', [DataFetcher::class, 'getProductCategory']);
       Route::get('/brands', [DataFetcher::class, 'getProductBrand']);
       Route::get('/pricerange', [DataFetcher::class, 'getPriceRange']);
+
+      Route::post('/regions', [AddressHelper::class, 'getRegions']);
+      Route::post('/provinces', [AddressHelper::class, 'getProvinces']);
+      Route::post('/cities', [AddressHelper::class, 'getCities']);
+      Route::post('/brgys', [AddressHelper::class, 'getBrgy']);
    });
 
    Route::prefix('web')->group(function () {

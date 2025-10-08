@@ -20,9 +20,8 @@ class AddressHelper extends Controller{
         try{
             $query = AddressRegion::query();
 
-            if(isset($request->id)){
-                $id = $this->decrypt_string($request->id);
-                $query->where('id',$id);
+            if(isset($request->region_code)){
+                $query->where('region_code',$request->region_code);
             }
 
             $result = $query->get();
@@ -45,19 +44,20 @@ class AddressHelper extends Controller{
     public function getProvinces(Request $request){
         try{
             $data = [];
+            
             if(!$request->region_code){
                 $data[] = ['value'=>'','label'=>'Select Region First'];
                 return response()->json($data,200);
             }
+
             $region_code = $request->region_code;
 
             $query = AddressProvince::query();
 
             $query->where('region_code',$region_code);
 
-            if(isset($request->id)){
-                $id = $this->decrypt_string($request->id);
-                $query->where('id',$id);
+            if(isset($request->province_code)){
+                $query->where('province_code',$request->province_code);
             }
         
             $result = $query->get();
@@ -89,9 +89,8 @@ class AddressHelper extends Controller{
 
             $query->where('province_code',$province_code);
 
-            if(isset($request->id)){
-                $id = $this->decrypt_string($request->id);
-                $query->where('id',$id);
+            if(isset($request->city_code)){
+                $query->where('city_municipality_code',$request->city_code);
             }
 
             $result = $query->get();
@@ -123,9 +122,8 @@ class AddressHelper extends Controller{
 
             $query->where('city_municipality_code',$request->city_code);
 
-            if(isset($request->id)){
-                $id = $this->decrypt_string($request->id);
-                $query->where('id',$id);
+            if(isset($request->barangay_code)){
+                $query->where('barangay_code',$request->barangay_code);
             }
 
             $result = $query->get();

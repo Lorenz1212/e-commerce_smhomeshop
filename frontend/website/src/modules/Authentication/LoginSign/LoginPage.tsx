@@ -88,9 +88,9 @@ export const LoginPage = () => {
             autoComplete="off"
             />
             {formikLogin.touched.email && formikLogin.errors.email && (
-            <div className="form-error-message">
-                <span role="alert">{formikLogin.errors.email}</span>
-            </div>
+              <div className="form-error-message">
+                  <span role="alert">{formikLogin.errors.email}</span>
+              </div>
             )}
         </div>
         <div className="form-group">

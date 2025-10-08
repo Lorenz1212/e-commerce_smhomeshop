@@ -349,7 +349,7 @@
 .checkoutDetailsForm form {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 1px;
 }
 
 .checkoutDetailsForm input {
@@ -989,6 +989,10 @@
     width: auto;
   }
 
+  .checkoutDetailsFormRow .form-select-solid {
+     width: '100%',
+  }
+
   .checkoutTotalContainer {
     padding: 20px;
   }
@@ -1038,4 +1042,116 @@
 
 .shoppingBagTableWrapper::-webkit-scrollbar-track {
   background: #f1f1f1;
+}
+
+.heroLink {
+  display: flex;
+}
+
+.sectionleft span {
+  text-decoration: none;
+  color: black;
+}
+
+.sectionleft span {
+  position: relative;
+  cursor: pointer;
+}
+
+.sectionleft span::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -5px;
+  width: 75%;
+  border-bottom: 2px solid black;
+  transition: width 0.2s ease;
+}
+
+.sectionleft span:hover::after {
+  width: 100%;
+}
+
+.sectionleft h5 {
+  display: flex;
+  font-size: 14px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Modal title */
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* List of address cards */
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Each address card */
+.address-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.address-card:hover {
+  background-color: #f5f5f5;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/* Address text */
+.address-text {
+  flex: 1;
+  font-size: 14px;
+  color: #333;
+  margin-right: 10px;
+}
+
+/* Button to set address */
+.set-address-btn {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 18px;
+  transition: color 0.2s;
+}
+
+.set-address-btn:hover {
+  color: #0056b3;
+}
+
+/* No address message */
+.no-address {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+.noAddress {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: #777;
+  gap: 10px;
+}
+
+.noAddressIcon {
+  font-size: 40px;
+  color: #999;
 }

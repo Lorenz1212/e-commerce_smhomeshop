@@ -3,8 +3,9 @@ import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import type { Group } from "three";
 
-export function Model({ color, ...props }: { color: string }) {
+export function TshirtModel({ color, ...props }: { color: string }) {
   const { nodes, materials } = useGLTF("/shirt_baked_2.glb") as any;
+
   const modelRef = useRef<Group>(null);
 
   const [scale, setScale] = useState<[number, number, number]>([1, 1, 1]);

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Models\Customer;
 use App\Models\CustomerAccount;
+use App\Models\CustomerAddress;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
@@ -128,5 +129,17 @@ class AuthCustomerService
         Cache::forget($key);
 
         return true;
+    }
+
+    public function getCustomerAddress()
+    {
+        $customer = Auth::guard('customer')->user();
+
+        $response = CustomerAddress::where('customer_id',$customer->id)->get()->transform(function($query) {
+            $query->full_address = $query->full_address;
+            return $query;
+        });
+        
+        return $response;
     }
 }

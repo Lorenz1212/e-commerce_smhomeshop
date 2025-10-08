@@ -68,11 +68,13 @@ export const useCart = () => {
 
   const updateProductCartQuantity = async (
     cart_id:string,
-    productDetails:CartItem
+    value:any
   ) => {
     try {
       showLoader();
-      const response = await api.post(`/customer/auth/cart/update/${cart_id}`,productDetails);
+      const formData = new FormData()
+      formData.append('quantity', value)
+      const response = await api.post(`/customer/auth/cart/update/${cart_id}`,formData);
       return response.data;
     } catch (error: any) {
       Swal.fire({
@@ -90,7 +92,7 @@ export const useCart = () => {
   ) => {
     try {
       showLoader();
-     const response = await api.post(`/customer/auth/cart/remove/${cart_id}`);
+     const response = await api.post(`/customer/auth/cart/delete/${cart_id}`);
       return response.data;
     } catch (error: any) {
       Swal.fire({
@@ -103,5 +105,23 @@ export const useCart = () => {
     }
   };
 
-  return { fetchCarts,  fetchCartCount, storeProductCart, updateProductCartQuantity, removeProductCart };
+  const checkOutCart = async (
+    value:any,
+  ) => {
+    try {
+      showLoader();
+      const response = await api.post(`/customer/auth/order/checkout/`,value);
+      return response.data;
+    } catch (error: any) {
+      Swal.fire({
+        icon: "error",
+        title: error?.response?.data?.message || "Something wen't wrong ",
+      });
+      return null;
+    } finally {
+      hideLoader();
+    }
+  };
+
+  return { fetchCarts,  fetchCartCount, storeProductCart, updateProductCartQuantity, removeProductCart, checkOutCart };
 };

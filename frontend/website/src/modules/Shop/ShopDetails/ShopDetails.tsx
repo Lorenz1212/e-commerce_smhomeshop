@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback, useMemo   } from "react";
 import "./ShopDetails.css";
+import debounce from "lodash.debounce";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { FiHeart } from "react-icons/fi";
 import defaultImage from "@/assets/ProductDetail/default.jpg";
@@ -57,29 +58,43 @@ const ShopDetails = () => {
     }
   };
 
-  const loadProducts = async (page = 1) => {
-    const res = await fetchProducts(
-      page,
-      category === "all" ? undefined : category,
-      selectedBrands,
-      priceRange[0],
-      priceRange[1],
-      sortOption
-    );
+  const loadProducts = useCallback(
+    debounce(async (page = 1) => {
+      const res = await fetchProducts(
+        page,
+        category === "all" ? undefined : category,
+        selectedBrands,
+        priceRange[0],
+        priceRange[1],
+        sortOption
+      );
+      if (res?.data) {
+        setProducts(res.data);
+        setPagination(res.pagination ?? null);
+      }
+    }, 500), // 500ms delay
+    [category, selectedBrands, priceRange, sortOption]
+  );
 
-    if (res?.data) {
-      setProducts(res.data);
-      setPagination(res.pagination ?? null);
-    }
-  };
+  const debouncedLoadProducts = useMemo(
+    () => debounce(loadProducts, 500),
+    [loadProducts]
+  );
+
 
   useEffect(() => {
     loadInitialData();
   }, []);
 
+ 
   useEffect(() => {
-    loadProducts(1);
-  }, [category, selectedBrands, priceRange, sortOption]);
+    debouncedLoadProducts(1);
+
+    // cleanup: cancel debounce when dependencies change
+    return () => {
+      debouncedLoadProducts.cancel();
+    };
+  }, [debouncedLoadProducts]);
 
   const scrollToTop = () => { window.scrollTo({ top: 0, behavior: "smooth", }); };
 

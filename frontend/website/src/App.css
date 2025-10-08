@@ -83,6 +83,16 @@ form select.is-valid {
   box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.15);
 }
 
+form .form-select-solid.is-invalid {
+  border-color: #d93025;
+  box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.15);
+}
+
+form .form-select-solid.is-valid {
+  border-color: #34a853; /* subtle green for valid state */
+  box-shadow: 0 0 0 3px rgba(52, 168, 83, 0.15);
+}
+
 
 .login-button-black {
   padding: 20px !important;

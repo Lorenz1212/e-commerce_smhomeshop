@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-
+import { OrbitControls, Environment, Loader } from "@react-three/drei";
 import "./HeroSection.css";
-import { Model } from "../../../Model/Model";
 import { Link } from "react-router-dom";
+import { SofaModel } from "./components/SofaModel";
+import { SofaOBJ } from "./components/SofaOBJ";
 
 const HeroSection = () => {
   
@@ -26,10 +26,10 @@ const HeroSection = () => {
       <div className="heroMain">
         <div className="sectionleft">
           <p>New Trend</p>
-          <h1>Summer Sale Stylish</h1>
-          <span>Transform Your Home with Timeless Furniture</span>
+          <h1>Transform Your Space in Style</h1>
+          Discover timeless furniture and home décor that bring comfort, elegance, and personality to every room. Make your home truly yours this season with SM Home.
           <div className="heroLink">
-            <Link to="/shop" onClick={scrollToTop}>
+            <Link to="/shop/all" onClick={scrollToTop}>
               <h5>Discover More</h5>
             </Link>
           </div>
@@ -55,7 +55,7 @@ const HeroSection = () => {
               minPolarAngle={Math.PI / 2}
             />
 
-            <Model color={tshirtColor} />
+            <SofaOBJ color={tshirtColor} />
           </Canvas>
           <div className="heroColorBtn">
             <button

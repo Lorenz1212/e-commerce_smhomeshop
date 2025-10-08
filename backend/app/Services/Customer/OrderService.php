@@ -42,7 +42,8 @@ class OrderService
                     return [
                         'id' => $cart_addons->addon_id,
                         'name' => $cart_addons->addon->name,
-                        'price' => $cart_addons->subtotal
+                        'price' => $cart_addons->subtotal,
+                        'is_freebie' => $cart_addons->is_freebie
                     ];
                 }),
                 
@@ -132,33 +133,6 @@ class OrderService
             return null; // or throw exception kung invalid cart_id
         }
 
-        $addonIdsFromRequest = $request->addons ?? [];
-
-        // Remove old addons na wala na sa bagong request
-        CartAddon::where('cart_id', $cart->id)
-            ->whereNotIn('addon_id', $addonIdsFromRequest)
-            ->delete();
-
-        // Insert or update addons
-        foreach ($addonIdsFromRequest as $addon_id) {
-            $product_addon = ProductAddon::where('addon_id', $addon_id)
-                ->where('product_id', $cart->product_id)
-                ->first();
-
-            if ($product_addon) {
-                CartAddon::updateOrCreate(
-                    [
-                        'cart_id' => $cart->id,
-                        'addon_id' => $addon_id,
-                    ],
-                    [
-                        'unit_price' => $product_addon->custom_price,
-                        'subtotal'=> ($product_addon->custom_price*$request->quantity)
-                    ]
-                );
-            }
-        }
-
         return $cart->product->name;
     }
 
@@ -244,6 +218,7 @@ class OrderService
                 'unit_price' => $cart->product->selling_price,
                 'subtotal'   => $subtotal
             ]);
+            
             $totalAmount += $subtotal;
 
             // Create addons linked to this order item
@@ -253,7 +228,8 @@ class OrderService
                     'addon_id'      => $addon->addon_id,
                     'product_id'    => $cart->product_id,
                     'unit_price'    => $addon->unit_price,
-                    'subtotal'      => $addon->subtotal
+                    'subtotal'      => $addon->subtotal,
+                    'is_freebie'    => $addon->is_freebie
                 ]);
                 $totalAmount += $addon->subtotal;
             }
@@ -267,8 +243,7 @@ class OrderService
             'subtotal'     => $totalAmount
         ]);
 
-        Cart::whereIn('id', $carts->pluck('id'))
-            ->update(['status' => c('CART_COMPLETED')]);
+        Cart::whereIn('id', $carts->pluck('id'))->update(['status' => c('CART_COMPLETED')]);
 
         return $order->order_no;
     }

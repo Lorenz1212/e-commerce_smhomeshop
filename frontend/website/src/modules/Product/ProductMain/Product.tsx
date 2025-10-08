@@ -41,6 +41,7 @@ const Product = () => {
   const [clicked, setClicked] = useState(false);
 
   const [openModal, setOpenModal] = useState(false);
+  
   const [modalState, setModalState] = useState<ModalResponse>({
     visible: false,
     title: '',
