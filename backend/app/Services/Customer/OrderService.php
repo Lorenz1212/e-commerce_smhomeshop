@@ -3,20 +3,20 @@
 namespace App\Services\Customer;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use App\Helpers\Api\GoogleNLPService;
 use App\Models\Cart;
 use App\Models\CartAddon;
+use App\Models\CustomerAddress;
 use App\Models\Feedback;
 use App\Models\FeedbackSource;
 use App\Models\OnlineOrder;
 use App\Models\ProductAddon;
-use App\Traits\Encryption;
 use Carbon\Carbon;
+use App\Services\BaseService;
 
-class OrderService
+class OrderService extends BaseService
 {
-    use Encryption; 
-
     public function getCartList(){
 
         $user_id = Auth::guard('customer')->user()->id;
@@ -78,7 +78,7 @@ class OrderService
         $cart = Cart::where('customer_id', $user->id)
             ->where('product_id', $request->product_id)
             ->where('variant_id', $request->variant_id)
-            ->where('status', c('CART_PENDING'))
+            ->where('status', CART_PENDING)
             ->where('addon_signature', $addonSignature)
             ->first();
 
@@ -119,26 +119,34 @@ class OrderService
             }
         }
 
-        return Cart::where('customer_id', $user->id)->where('status', 'PENDING')->count();
+        return Cart::where('customer_id', $user->id)->where('status', CART_PENDING)->count();
     }
 
     public function cartUpdate($request){
 
-        $cart = Cart::find($request->cart_id);
+        $cart = Cart::where('id',$request->cart_id)->where('status',CART_PENDING);
 
-        if ($cart) {
-            $cart->quantity = $request->quantity;
-            $cart->save();
-        } else {
-            return null; // or throw exception kung invalid cart_id
+        if(!$cart){
+           throw ValidationException::withMessages(['Sorry, this item is already deleted or not pending.']);
         }
+
+        $cart->quantity = $request->quantity;
+        $cart->save();
 
         return $cart->product->name;
     }
 
     public function cartDelete($cart_id){
-        Cart::find($cart_id)->delete();
+        $query = Cart::where('id',$cart_id)->where('status',CART_PENDING)->first();
+
+        if(!$query){
+           throw ValidationException::withMessages(['Sorry, this item is already deleted or not pending.']);
+        }
+
+        $query->delete();
+
         CartAddon::where('cart_id',$cart_id)->delete();
+        
         return true;
     }
 
@@ -188,35 +196,85 @@ class OrderService
         
         $userId = Auth::guard('customer')->user()->id;
 
-        $carts = Cart::with(['product', 'cart_addons'])
+        $carts = Cart::with(['product', 'cart_addons', 'variant'])
                     ->where('customer_id', $userId)
-                    ->where('status', c('CART_PENDING'))
+                    ->where('status', CART_PENDING)
                     ->get();
 
         if ($carts->isEmpty()) {
-            return null;
+            throw ValidationException::withMessages(['Sorry, this item is already submitted or not pending.']);
         }
 
+        $address = CustomerAddress::where('customer_id',$userId)
+        ->where('address',$request->address)
+        ->where('region_code',$request->region_code)
+        ->where('province_code',$request->province_code)
+        ->where('city_code',$request->city_code)
+        ->where('brgy_code',$request->brgy_code)->first();
+
+        if($address){
+            $address->update([
+                'company_name'=>$request->company_name,
+                'postal_code'=>$request->postal_code,
+                'notes'=>$request->notes
+            ]);
+        }else{
+            CustomerAddress::create([
+                'customer_id'=>$userId,
+                'company_name'=>$request->company_name,
+                'address'=>$request->address,
+                'region_code'=>$request->region_code,
+                'province_code'=>$request->province_code,
+                'city_code'=>$request->city_code,
+                'brgy_code'=>$request->brgy_code,
+                'postal_code'=>$request->postal_code,
+               
+            ]);
+        }
+
+         $addressArray = [
+            'region' => $request->region_code,
+            'province' => $request->province_code,
+            'city' => $request->city_code,
+            'brgy' => $request->brgy_code
+        ];
+
+        $full_address = $this->getFullAddress($request->address, $addressArray);
+
         $order = OnlineOrder::create([
-            'customer_id'    => $userId,
-            'store_id'       => 1,
-            'order_date'     => now()->toDateString(),
-            'payment_method' => 'CASH',
-            'request_type'   => $request->type,
-            'status'         => c('ORDER_PENDING'),
-            'total_amount'   => 0
+            'customer_id'     => $userId,
+            'store_id'        => 1,
+            'order_date'      => now(),
+            'payment_method'  => $request->payment_method,
+            'payment_status'  => PAYMENT_STATUS_PENDING,
+            'status'          => ($request->payment_method == PAYMENT_METHOD_CASH)?ORDER_RESERVED:ORDER_PENDING,
+            'shipping_address'=> $full_address,
+            'billing_address' => $full_address,
+            'total_amount'    => 0,
+            'notes'           => $request->notes
         ]);
 
         $totalAmount = 0;
 
         foreach ($carts as $cart) {
-            // Create order item
-            $subtotal = $cart->product->selling_price * $cart->quantity;
+
+            $product_name = $cart->product->name . (!empty($cart->variant) ? ' - ' . $cart->variant->variant_name : '');
+            
+            $sku = (!empty($cart->variant))?$cart->variant->sku:$cart->product->sku;
+
+            $selling_price = $cart->variant ? ($cart->variant->selling_price ?? $cart->product->selling_price) : $cart->product->selling_price;
+
+            $subtotal = $selling_price * $cart->quantity;
+
             $orderItem = $order->items()->create([
-                'product_id' => $cart->product_id,
-                'quantity'   => $cart->quantity,
-                'unit_price' => $cart->product->selling_price,
-                'subtotal'   => $subtotal
+                'product_id'=> $cart->product_id,
+                'variant_id'=> $cart->variant_id,
+                'product_name'=> $product_name,
+                'sku' => $sku,
+                'quantity' => $cart->quantity,
+                'unit_price'=> $selling_price,
+                'subtotal'=> $subtotal,
+                'status' => ORDER_ITEM_PENDING
             ]);
             
             $totalAmount += $subtotal;
@@ -227,15 +285,19 @@ class OrderService
                     'order_item_id' => $orderItem->id,
                     'addon_id'      => $addon->addon_id,
                     'product_id'    => $cart->product_id,
+                    'name'          => $addon->addon->name,
                     'unit_price'    => $addon->unit_price,
                     'subtotal'      => $addon->subtotal,
                     'is_freebie'    => $addon->is_freebie
                 ]);
+                
                 $totalAmount += $addon->subtotal;
             }
         }
 
-        $vat_amount = $totalAmount * (c('VAT_RATE') / (1 + c('VAT_RATE')));
+        $vat_rate = $this->getDefiner(VAT_RATE, DEFAULT_VAT_RATE);
+
+        $vat_amount = $totalAmount * ($vat_rate / (1 + $vat_rate));
 
         $order->update([
             'total_amount' => $totalAmount,
@@ -243,7 +305,7 @@ class OrderService
             'subtotal'     => $totalAmount
         ]);
 
-        Cart::whereIn('id', $carts->pluck('id'))->update(['status' => c('CART_COMPLETED')]);
+        Cart::whereIn('id', $carts->pluck('id'))->update(['status' => CART_COMPLETED]);
 
         return $order->order_no;
     }

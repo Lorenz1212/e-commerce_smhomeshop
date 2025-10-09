@@ -17,8 +17,7 @@ class CartAddon extends BaseModel
      protected $appends = [
         'id_encrypted',
         'row_number',
-        'created_at_format',
-        'stock_status'
+        'created_at_format'
     ];
 
     protected function rowNumber(): Attribute

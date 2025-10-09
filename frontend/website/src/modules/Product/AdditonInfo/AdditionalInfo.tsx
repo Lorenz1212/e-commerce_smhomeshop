@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import "./AdditionalInfo.css";
 import { FaInfoCircle } from "react-icons/fa";
-import user1 from "@/assets/Users/user1.jpeg";
-import user2 from "@/assets/Users/user2.jpeg";
 
 import { FaStar } from "react-icons/fa";
 import Rating from "@mui/material/Rating";
@@ -102,7 +100,7 @@ const AdditionalInfo: React.FC<Props> = ({description}) => {
                       style={{ borderBottom: "1px solid #e4e4e4" }}
                     >
                       <div className="userReviewImg">
-                        <img src={user1} alt="" />
+                        {/* <img src={user1} alt="" /> */}
                       </div>
                       <div className="userReviewContent">
                         <div className="userReviewTopContent">
@@ -135,7 +133,7 @@ const AdditionalInfo: React.FC<Props> = ({description}) => {
                     </div>
                     <div className="userReview">
                       <div className="userReviewImg">
-                        <img src={user2} alt="" />
+                        {/* <img src={user2} alt="" /> */}
                       </div>
                       <div className="userReviewContent">
                         <div className="userReviewTopContent">

@@ -218,16 +218,21 @@ class DataFetcher extends Controller {
         }
     }
 
-    public function getAllDefiners()
+    public function getAllDefiners($value=false, $default = null)
     {
-        try {
-            
+       try {
             $definers = Cache::remember('all_definers', 3600, function () {
                 return SystemDefinition::where('is_active', 'Y')
                     ->get(['code', 'value', 'description'])
                     ->keyBy('code');
             });
 
+            if($value){
+                $definer = $definers->get($value);
+                
+                return $definer ? $definer->value : $default;
+            }
+           
             return response()->json($definers, 200);
         } catch (\Throwable $e) {
             return ExceptionHandler::handle($e);

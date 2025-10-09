@@ -45,6 +45,8 @@ const ShoppingCart = () => {
 
   const [address, onSetAddress] = useState<any>([]);
 
+  const [orderSuccess, onSetOrderSuccess] = useState(false);
+
   const loadProductCart = async () => {
     const res = await controller.fetchCarts();
       if (res) {
@@ -107,15 +109,18 @@ const ShoppingCart = () => {
     }
   }, [address]);
 
-  const cartItems = useSelector((state:any) => state.cart.items);
-
   const [activeTab, setActiveTab] = useState("cartTab1");
 
   const [payments, setPayments] = useState(false);
 
+  const [orderNumber, setOrderNumber] = useState("");
+
   const handleTabClick = (tab:any) => {
     if (tab === "cartTab1" || productCarts.length > 0) {
       setActiveTab(tab);
+    }
+    if(orderSuccess && tab === "cartTab1" && tab === "cartTab2"){
+      setProductCarts([]);
     }
   };
 
@@ -170,15 +175,13 @@ const ShoppingCart = () => {
     return `${day}/${month}/${year}`;
   };
 
-  // Random number
-  const orderNumber = Math.floor(Math.random() * 100000);
 
-  // Radio Button Data
-  const [selectedPayment, setSelectedPayment] = useState("COD");
+    // Radio Button Data
+    const [selectedPayment, setSelectedPayment] = useState("COD");
 
-  const handlePaymentChange = (e:any) => {
-    setSelectedPayment(e.target.value);
-  };
+    const handlePaymentChange = (e:any) => {
+      setSelectedPayment(e.target.value);
+    };
 
    const handleShowAddress = () => {
       setModalState({
@@ -198,7 +201,6 @@ const ShoppingCart = () => {
     brgy_code: Yup.string().required('Barangay is required'),
     postal_code: Yup.string().required('Postal/Zip Code is required'),
   })
-
 
   return (
     <>
@@ -649,8 +651,10 @@ const ShoppingCart = () => {
                           });
 
                           if (result.isConfirmed) {
-                            // const response = await controller.checkOutCart(values);
-                            // if (response) {
+                            values.payment_method = selectedPayment;
+                            const response = await controller.checkOutCart(values);
+                            if (response) {
+
                               Swal.fire({
                                 title: "Order Placed!",
                                 text: "Your order has been successfully submitted.",
@@ -660,10 +664,12 @@ const ShoppingCart = () => {
 
                               handleTabClick("cartTab3");
                               window.scrollTo({ top: 0, behavior: "smooth" });
+                              onSetOrderSuccess(true);
+                              setOrderNumber(response)
                               setPayments(true);
-                              setProductCarts([]);
-                              // resetForm();
-                            // }
+                              controller.fetchCartCount();
+                              resetForm();
+                            }
                           }
                         }}
                                               >
@@ -870,7 +876,7 @@ const ShoppingCart = () => {
                         </p>
                       </div>
                     </label>
-                    <label>
+                    {/* <label>
                       <input
                         type="radio"
                         name="payment"
@@ -884,12 +890,12 @@ const ShoppingCart = () => {
                          Your order will be processed once the payment has been confirmed and cleared in our account.
                         </p>
                       </div>
-                    </label>
+                    </label> */}
                      <label>
                       <input
                         type="radio"
                         name="payment"
-                        value="PICK_UP"
+                        value="CASH"
                         onChange={handlePaymentChange}
                       />
                       <div className="checkoutPaymentMethod">

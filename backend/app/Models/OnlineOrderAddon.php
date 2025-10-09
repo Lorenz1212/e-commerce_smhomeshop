@@ -15,6 +15,7 @@ class OnlineOrderAddon extends BaseModel
         'order_item_id', 
         'product_id',
         'addon_id', 
+        'name',
         'unit_price', 
         'subtotal', 
         'is_freebie'

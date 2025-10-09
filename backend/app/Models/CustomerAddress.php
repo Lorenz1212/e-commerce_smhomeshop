@@ -22,7 +22,7 @@ class CustomerAddress extends BaseModel
         'province_code',
         'region_code',
         'postal_code',
-        'default_flag',
+        'default_flag'
     ];
 
     protected $hidden = [
