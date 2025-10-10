@@ -44,63 +44,32 @@ class DashboardService
     }
 
 
-    public function getForcastingSales($request) {
-        $storeId   = $request->input('store_id', 1);
-        $fromDate  = $request->input('from_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
-        $toDate    = $request->input('to_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
-        $channel   = $request->input('channel', 'both'); // 'pos', 'online', 'both'
-
-        // === POS TRANSACTIONS ===
-        $pos = collect();
-        if ($channel === 'pos' || $channel === 'both') {
-            $posQuery = PosTransaction::where('status', c('POS_SERVED'));
-
-            if ($storeId) {
-                $posQuery->where('store_id', $storeId);
-            }
-
-            if ($fromDate && $toDate) {
-                $posQuery->whereBetween('transaction_datetime', [$fromDate, $toDate]);
-            }
-
-            $pos = $posQuery
-                ->selectRaw('DATE(transaction_datetime) as date, SUM(total_amount) as total_sales')
-                ->groupBy('date')
-                ->get();
-        }
-
+    public function getForecastingSales($request)
+    {
+        $storeId  = $request->input('store_id', 1);
+        $fromDate = $request->input('from_date', Carbon::now()->startOfMonth()->format('Y-m-d'));
+        $toDate   = $request->input('to_date', Carbon::now()->endOfMonth()->format('Y-m-d'));
+ 
         // === ONLINE ORDERS ===
         $online = collect();
-        if ($channel === 'online' || $channel === 'both') {
-            $onlineQuery = OnlineOrder::where('status', c('ORDER_SERVED'));
 
-            if ($storeId) {
-                $onlineQuery->where('store_id', $storeId);
-            }
+        $onlineQuery = OnlineOrder::where('status', ORDER_SHIPPED);
 
-            if ($fromDate && $toDate) {
-                $onlineQuery->whereBetween('order_date', [$fromDate, $toDate]);
-            }
-
-            $online = $onlineQuery
-                ->selectRaw('DATE(order_date) as date, SUM(total_amount) as total_sales')
-                ->groupBy('date')
-                ->get();
+        if ($storeId) {
+            $onlineQuery->where('store_id', $storeId);
         }
+
+        if ($fromDate && $toDate) {
+            $onlineQuery->whereBetween('order_date', [$fromDate, $toDate]);
+        }
+
+        $online = $onlineQuery
+            ->selectRaw('DATE(order_date) as date, SUM(total_amount) as total_sales')
+            ->groupBy('date')
+            ->get();
 
         // === COMBINE DATA ===
         $final = [];
-
-        foreach ($pos as $row) {
-            $date = $row->date;
-            if (!isset($final[$date])) {
-                $final[$date] = [
-                    'date' => $date,
-                    'total_sales' => 0,
-                ];
-            }
-            $final[$date]['total_sales'] += $row->total_sales; // ✅ fixed
-        }
 
         foreach ($online as $row) {
             $date = $row->date;
@@ -110,7 +79,7 @@ class DashboardService
                     'total_sales' => 0,
                 ];
             }
-            $final[$date]['total_sales'] += $row->total_sales; // ✅ fixed
+            $final[$date]['total_sales'] += (float) $row->total_sales;
         }
 
         $final = collect($final)->sortBy('date')->values();
@@ -140,29 +109,41 @@ class DashboardService
         $index = 1;
 
         foreach ($merged as $day) {
-            $dataPoints->push([
-                'x' => $index,          // Day number (1, 2, 3, ...)
-                'y' => (float) $day['total_sales'],
-            ]);
+            if ($day['total_sales'] > 0) {
+                $dataPoints->push([
+                    'x' => $index,
+                    'y' => floatval($day['total_sales']),
+                ]);
+            }
             $index++;
         }
 
-        // Default forecast (empty)
+        // === FORECAST SECTION ===
         $forecasts = [];
 
-        // Forecast ONLY if may sapat na data
-        if ($dataPoints->count() >= 3) {
-            list($m, $b) = $this->linearRegressionCoefficients($dataPoints);
+        if ($dataPoints->count() >= 2) {
+            [$m, $b] = $this->linearRegressionCoefficients($dataPoints);
 
-            $forecastDays = 7;
+            $forecastDays = 7; // You can change this to any number
             $days = $merged->count();
+            $lastSales = $merged->last()['total_sales'] ?? 0;
+
+            $lastSalesDate = collect($merged)
+                ->filter(fn($d) => $d['total_sales'] > 0)
+                ->last();
+
+            $lastDate = Carbon::parse($lastSalesDate['date']);
 
             for ($i = 1; $i <= $forecastDays; $i++) {
-                $x = $days + $i;
+                $x = $dataPoints->count() + $i;
                 $y = $m * $x + $b;
+
+                // Use last known sales if regression is flat or gives negative result
+                $forecastValue = ($y > 0) ? $y : $lastSales;
+
                 $forecasts[] = [
-                    'day' => Carbon::now()->addDays($i)->format('Y-m-d'),
-                    'forecast' => max(0, round($y, 2)),  // Avoid negative forecast
+                    'date' => $lastDate->copy()->addDays($i)->format('Y-m-d'),
+                    'forecast' => max(0, round($y, 2)),
                 ];
             }
         }
@@ -173,20 +154,15 @@ class DashboardService
         ];
     }
 
-    private function linearRegressionCoefficients($dataPoints) {
+    private function linearRegressionCoefficients($dataPoints){
         $n = $dataPoints->count();
 
         $sumX = $dataPoints->sum('x');
         $sumY = $dataPoints->sum('y');
-        $sumXY = $dataPoints->sum(function ($point) {
-            return $point['x'] * $point['y'];
-        });
-        $sumX2 = $dataPoints->sum(function ($point) {
-            return $point['x'] * $point['x'];
-        });
+        $sumXY = $dataPoints->sum(fn($p) => $p['x'] * $p['y']);
+        $sumX2 = $dataPoints->sum(fn($p) => $p['x'] * $p['x']);
 
-        // Handle division by zero
-        $denominator = ($n * $sumX2 - $sumX * $sumX);
+        $denominator = ($n * $sumX2 - pow($sumX, 2));
         if ($denominator == 0) {
             return [0, 0];
         }
