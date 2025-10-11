@@ -12,3 +12,35 @@
 // Layout
 @import "layout/layout";
 @import "custom/_image";
+
+.ql-container {
+  height: 100% !important;
+}
+
+.ql-editor {
+  min-height: 250px; /* actual typing area height */
+}
+
+.scrollable-description {
+  max-height: 350px;          /* Adjust height as needed */
+  overflow-y: hidden;         /* Hide scrollbar by default */
+  transition: overflow 0.3s ease;
+}
+
+.scrollable-description:hover {
+  overflow-y: auto;           /* Show scrollbar on hover */
+}
+
+/* Optional scrollbar style for WebKit browsers */
+.scrollable-description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-description::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.15);
+  border-radius: 3px;
+}
+
+.scrollable-description::-webkit-scrollbar-track {
+  background-color: transparent;
+}

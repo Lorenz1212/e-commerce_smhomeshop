@@ -2,6 +2,8 @@ import React, { FC, useState } from 'react'
 import * as Yup from 'yup'
 import { Formik } from 'formik'
 import clsx from 'clsx'
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { CategorySelect } from '@@@/selects/CategorySelect'
 import { SupplierSelect } from '@@@/selects/SupplierSelect'
 import { useProduct } from '@@/products/core/_request'
@@ -23,13 +25,19 @@ interface CreateProductModalProps {
   onSubmit?: (values: any) => void
 }
 
+
+const stripHtml = (value = '') => {
+  const stripped = value.replace(/<(.|\n)*?>/g, '').trim();
+  return stripped;
+};
+
 // Split validation by step
 const StepSchemas = [
   // Step 1: Basic Info
   Yup.object().shape({
     sku: Yup.string().min(1).max(50).required('SKU is required'),
     name: Yup.string().min(1).max(50).required('Product name is required'),
-    description: Yup.string().min(1).required('Description is required'),
+    long_description: Yup.string().transform((value) => stripHtml(value)).required('Full Description is required'),
     brand_id: Yup.string().required('Product Brand is required'),
     category_id: Yup.string().required('Category is required'),
     supplier_id: Yup.string().required('Supplier is required'),
@@ -201,7 +209,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [step, setStep] = useState(1)
   const { createProduct } = useProduct()
-
+  
   const nextStep = async (formikValues: any, validateForm: any) => {
     const errors = await validateForm()
     if (Object.keys(errors).length > 0) return // prevent step change if errors
@@ -237,6 +245,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
         sku: '',
         name: '',
         description: '',
+        long_description:'',
         brand_id: '',
         category_id: '',
         supplier_id: '',
@@ -315,7 +324,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
                 {formik.touched.name && formik.errors.name && <div className="invalid-feedback">{formik.errors.name}</div>}
               </div>
               <div className="col-md-12 mb-3">
-                <label className="form-label required">Description</label>
+                <label className="form-label">Detailed Description</label>
                 <textarea
                   className={clsx('form-control', { 'is-invalid': formik.touched.description && formik.errors.description })}
                   rows={4}
@@ -330,6 +339,27 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
                   }}
                 />
                 {formik.touched.description && formik.errors.description && <div className="invalid-feedback">{formik.errors.description}</div>}
+              </div>
+              <div className='col-md-12 mb-3'>
+                 <label className="form-label required">Full Description</label>
+                <ReactQuill
+                    theme="snow"
+                    value={formik.values.long_description}
+                    onChange={(value) => {
+                      formik.setFieldValue('long_description', value);
+                      // Optional: inline validation
+                      const stepSchema = StepSchemas[step - 1];
+                      stepSchema
+                        .validateAt('long_description', { long_description: value })
+                        .then(() => formik.setFieldError('long_description', ''))
+                        .catch((err: any) => formik.setFieldError('long_description', err.message));
+                    }}
+                    onBlur={() => formik.setFieldTouched('long_description', true)}
+                    className={clsx('h-300', {
+                      'is-invalid': formik.touched.long_description && formik.errors.long_description,
+                    })}
+                  />
+                  {formik.touched.long_description && formik.errors.long_description && <div className="invalid-feedback">{formik.errors.long_description}</div>}
               </div>
               <div className="col-md-6">
                 <BrandSelect
@@ -469,6 +499,12 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
           {step === 3 && 
             (
               <>
+              <div className="alert alert-info mt-3">
+                <i className="bi bi-info-circle-fill me-2"></i>
+                <small>
+                  Reminder: The image marked as <strong>Primary</strong> will be used as the product cover.
+                </small>
+              </div>
               <MulitpleImageUploader 
                 name="images" 
                 formik={formik} 
@@ -483,6 +519,12 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
 
           {step === 4 && (
             <>
+              <div className="alert alert-info mt-3">
+                <i className="bi bi-info-circle-fill me-2"></i>
+                <small>
+                  Reminder: Addons will be added to the product price and shown as optional extras to customers.
+                </small>
+              </div>
               <AddonsFieldArray 
                 name="addons" 
                 errors={formik.errors}
@@ -496,15 +538,24 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
           )}
 
           {step === 5 && 
-          <VariantsFieldArray 
-            name="variants" 
-            errors={formik.errors}
-            touched={formik.touched}
-            onBlur={(e) => {formik.handleBlur(e)}}
-            onChange={(e) => {formik.handleChange(e)}}
-            setFieldValue={formik.setFieldValue}
-            setFieldTouched={formik.setFieldTouched}
-        />}
+          <>
+            <div className="alert alert-info mt-3">
+              <i className="bi bi-info-circle-fill me-2"></i>
+              <small>
+                Reminder: If a variant does not have a selling price or cost price, the main product’s prices will be used.
+              </small>
+            </div>
+            <VariantsFieldArray 
+                name="variants" 
+                errors={formik.errors}
+                touched={formik.touched}
+                onBlur={(e) => {formik.handleBlur(e)}}
+                onChange={(e) => {formik.handleChange(e)}}
+                setFieldValue={formik.setFieldValue}
+                setFieldTouched={formik.setFieldTouched}
+            />
+          </>
+          }
 
           {/* Navigation Buttons */}
           <div className="d-flex justify-content-between mt-4">

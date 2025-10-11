@@ -2,6 +2,8 @@ export interface ProductModel {
   id_encrypted: string;
   sku: string;
   name: string;
+  description:string;
+  long_description:string;
   category_id: number;
   quantity_on_hand: number;
   reorder_point: number;

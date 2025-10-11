@@ -33,8 +33,8 @@ class StoreProductRequest extends FormRequest
         return [
             'sku' => 'required|string|max:255|unique:products,sku',
             'name' => 'required|string|max:100',
-            'description' => 'required|string',
-            'long_description' => 'nullable',
+            'description' => 'nullable|string',
+            'long_description' => 'required|string',
             'category_id' => 'required|exists:product_categories,id',
             'quantity_on_hand' => 'required|integer|min:0',
             'reorder_point' => 'required|integer|min:0',

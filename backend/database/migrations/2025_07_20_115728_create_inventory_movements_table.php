@@ -18,6 +18,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->enum('movement_type', ['IN', 'OUT']);
             $table->string('reference')->nullable();
+            $table->string('remark')->nullable();
             $table->timestamps();
         });
     }

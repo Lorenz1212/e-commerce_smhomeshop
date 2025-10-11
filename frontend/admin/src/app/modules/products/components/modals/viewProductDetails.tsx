@@ -84,8 +84,15 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
           </div>
             <hr></hr>
           <div className="col-md-12 mb-3">
-            <span className="fw-bold me-2">Description:</span>
+            <span className="fw-bold me-2">Detailed Description:</span>
             <div className="form-control-plaintext">{data.description || '-'}</div>
+          </div>
+          <div className="col-md-12 mb-3">
+            <span className="fw-bold me-2">Full Description:</span>
+            <div className="form-control-plaintext scrollable-description"  
+                dangerouslySetInnerHTML={{
+                __html: data.long_description || '-',
+              }}></div>
           </div>
         </div>
       )}
@@ -150,7 +157,13 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
 
       {step === 4 && (
         <div className="col-md-12 mb-3">
-          <h6 className="fw-bold mb-3">Addons</h6>
+           <div className="alert alert-info mt-3">
+            <i className="bi bi-info-circle-fill me-2"></i>
+            <small>
+              Reminder: Addons will be added to the product price and shown as optional extras to customers.
+            </small>
+          </div>
+            <h6 className="fw-bold mb-3">Addons</h6>
 
             {data.product_addons?.length > 0 ? (
               <div className="list-group shadow-sm rounded-3">
@@ -188,8 +201,13 @@ const ViewProductDetailsModal: FC<ProductModalProps> = ({
 
       {step === 5 && (
         <div className="col-md-12 mb-3">
+          <div className="alert alert-info rounded-3 mb-4">
+            <i className="bi bi-info-circle-fill me-2"></i>
+            <small>
+              If a variant does not have a Selling Price or Cost Price, the main product's prices will be used instead.
+            </small>
+          </div>
           <h6 className="fw-bold mb-3">Variants</h6>
-
           {data.variants?.length > 0 ? (
             <div className="row g-3">
               {data.variants.map((variant: any, idx: number) => (

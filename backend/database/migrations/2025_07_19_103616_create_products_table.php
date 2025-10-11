@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('name');
             $table->string('description');
+            $table->longText('long_description');
             $table->foreignId('category_id')->constrained('product_categories')->onDelete('cascade');
             $table->foreignId('brand_id')->constrained('product_brands')->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained('suppliers')->onDelete('cascade');
