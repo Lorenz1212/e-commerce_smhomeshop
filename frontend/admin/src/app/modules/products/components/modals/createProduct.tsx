@@ -593,7 +593,7 @@ const CreateProductModal: FC<CreateProductModalProps> = ({ setPage, setRefreshTa
                 onClick={async () => {
                   try {
                     await StepSchemas[step - 1].validate(formik.values, { abortEarly: false })
-                   console.log(formik.values)
+ 
                     formik.handleSubmit() // ✅ trigger submit only after validation
                   } catch (err: any) {
                 
